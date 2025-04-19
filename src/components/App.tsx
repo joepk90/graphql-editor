@@ -5,6 +5,7 @@ import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, printSchema }
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { Voyager } from 'graphql-voyager';
+
 // import { buildWithFakeDefinitions } from 'src/fake_definition';
 
 const initialSchema = buildDefaultSchema(`
@@ -181,7 +182,8 @@ export const App = () => {
           <GraphiQLEditor key={2} schema={fullSchema} />,
           <Voyager
             key={3}
-            introspection={(e) => graphQLFetcher({ query: e })}
+            // @ts-ignore
+            introspection={graphQLFetcher}
             // hideSettings={}
             workerURI="/voyager.worker.js"
           />,
