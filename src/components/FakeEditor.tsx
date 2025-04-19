@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { SchemaEditor } from 'src/components';
 import { GraphQLSchema, GraphQLError } from 'graphql';
-import { style } from '../../node_modules/@motionone/dom/lib/animate/style';
 
 type Props = {
   schemaEditorValue: string;

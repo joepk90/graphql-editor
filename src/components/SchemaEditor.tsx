@@ -2,7 +2,10 @@ import { useEffect, useState, FC } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 
 // CodeMirror core and addons
+
 import 'codemirror/lib/codemirror.css';
+// import 'codemirror/theme/material.css';
+
 import 'codemirror/addon/fold/foldgutter.css'; // Needed for folding
 import 'codemirror/addon/hint/show-hint.css';
 
@@ -77,8 +80,11 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({
   return (
     <CodeMirror
       value={value}
+      autoCursor={true}
+      className="schema-editor"
       options={
         {
+          autoScroll: true,
           mode: 'graphql',
           theme: 'default',
           lineNumbers: true,
