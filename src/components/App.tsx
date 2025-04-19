@@ -20,7 +20,6 @@ const initialSchema = buildDefaultSchema(`
 `);
 
 export const App = () => {
-  console.log('initialSchema', initialSchema);
   // const [value, setValue] = useState<GraphQLSchema | null>(initialSchema);
   // const [cachedValue, setCachedValue] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<number>(0);

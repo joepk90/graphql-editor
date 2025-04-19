@@ -60,12 +60,8 @@ const createRequestOptions = <T>(options: RequestOptions<T>) => {
   };
 
   if (args && 'body' in args) {
-    console.log('=========================', args.body);
-    console.log('=========================', args.body);
-    console.log('=========================', args.body);
     requestOptions.body = JSON.stringify(args.body);
     requestOptions.headers = JSONHeader;
-    // requestOptions.body = JSON.stringify(args.body);
   }
 
   return requestOptions;

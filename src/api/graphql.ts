@@ -1,5 +1,5 @@
 import { api } from 'src/api/api';
-import { GraphQLArgs } from 'graphql';
+import { voyagerIntrospectionQuery } from 'graphql-voyager';
 
 export const graphQLEndpoint = 'graphql';
 const sdlEndpoint = 'user-sdl';
@@ -10,25 +10,25 @@ const jsonHeader = { 'Content-Type': 'application/json' };
 const authHeader = {
   Authorization: `Bearer ${authToken}`,
 };
-const headers = {
-  ...jsonHeader,
-  ...authHeader,
-};
+// const headers = {
+//   ...jsonHeader,
+//   ...authHeader,
+// };
 
-export const graphQLFetcher = async (graphQLParams: GraphQLArgs) => {
-  // const body = JSON.stringify(graphQLParams);
-  const response = await api.post({
-    path: graphQLEndpoint,
-    body: graphQLParams,
-    headers,
-  });
-  const data = await response.json();
-  console.log('data: ', data);
-  return data;
-  // return await buildClientSchema(data.data);
-  // return await parse(data);
-  // return new GraphQLSchema({ query: null });
-};
+// export const graphQLFetcher = async (graphQLParams: GraphQLArgs) => {
+//   console.log('graphQLParams: ', graphQLParams);
+//   // const body = JSON.stringify(graphQLParams);
+//   const response = await api.post({
+//     path: graphQLEndpoint,
+//     body: graphQLParams,
+//     headers,
+//   });
+//   await response.json();
+//   // return data;
+//   // return await buildClientSchema(data.data);
+//   // return await parse(data);
+//   // return new GraphQLSchema({ query: null });
+// };
 
 export const getSDL = async () => {
   return await api.get({ path: sdlEndpoint });
