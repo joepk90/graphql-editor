@@ -36,3 +36,16 @@ export const postSDL = async (sdl: string) => {
     headers: plainTextHeader,
   });
 };
+
+export const voyagerIntrospectionQueryRequest = async () => {
+  const response = await api.post({
+    path: graphQLEndpoint,
+    body: JSON.stringify({ query: voyagerIntrospectionQuery }),
+    headers: {
+      ...jsonHeader,
+      ...authHeader,
+      credentials: 'omit',
+    },
+  });
+  return await response.json();
+};

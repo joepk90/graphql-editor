@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
-import { TabsContainer, Navigation, FakeEditor, GraphiQLEditor } from 'src/components';
-import { getSDL, postSDL, graphQLFetcher } from 'src/api';
+import {
+  TabsContainer,
+  Navigation,
+  FakeEditor,
+  GraphiQLEditor,
+  GraphQLVoyager,
+} from 'src/components';
+import { getSDL, postSDL } from 'src/api';
 import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, printSchema } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { Voyager } from 'graphql-voyager';
 
 // import { buildWithFakeDefinitions } from 'src/fake_definition';
 
@@ -180,13 +185,7 @@ export const App = () => {
             setSchemaEditorValue={updateSchema}
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,
-          <Voyager
-            key={3}
-            // @ts-ignore
-            introspection={graphQLFetcher}
-            // hideSettings={}
-            workerURI="/voyager.worker.js"
-          />,
+          <GraphQLVoyager key={3} />,
         ]}
       />
     </div>
