@@ -4,10 +4,15 @@ import { GraphQLArgs } from 'graphql';
 export const graphQLEndpoint = 'graphql';
 const sdlEndpoint = 'user-sdl';
 
+const authToken = 'XXX';
 const plainTextHeader = { 'Content-Type': 'text/plain' };
+const jsonHeader = { 'Content-Type': 'application/json' };
+const authHeader = {
+  Authorization: `Bearer ${authToken}`,
+};
 const headers = {
-  'Content-Type': 'application/json',
-  authorization: 'Bearer XXX',
+  ...jsonHeader,
+  ...authHeader,
 };
 
 export const graphQLFetcher = async (graphQLParams: GraphQLArgs) => {
