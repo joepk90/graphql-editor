@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TabsContainer, Navigation, Explorer, FakeEditor, GraphiQLEditor } from 'src/components';
+import { TabsContainer, Navigation, FakeEditor, GraphiQLEditor } from 'src/components';
 import { getSDL, postSDL, graphQLFetcher } from 'src/api';
 import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, printSchema } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
@@ -185,7 +185,6 @@ export const App = () => {
             // hideSettings={}
             workerURI="/voyager.worker.js"
           />,
-          <Explorer key={4} schema={fullSchema} />,
         ]}
       />
     </div>
