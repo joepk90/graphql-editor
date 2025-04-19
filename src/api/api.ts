@@ -2,7 +2,7 @@ import { NotFoundError } from './apiUtils';
 
 const JSONHeader = { 'Content-Type': 'application/json' };
 
-const AppConfig = {
+export const AppConfig = {
   ApiUrl: 'http://localhost:9002',
 };
 

@@ -1,7 +1,7 @@
 import { api } from 'src/api/api';
 import { GraphQLArgs } from 'graphql';
 
-const graphQLEndpoint = 'graphql';
+export const graphQLEndpoint = 'graphql';
 const sdlEndpoint = 'user-sdl';
 
 const plainTextHeader = { 'Content-Type': 'text/plain' };
