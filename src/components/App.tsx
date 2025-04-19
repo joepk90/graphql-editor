@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { GraphiQL } from 'graphiql';
-import { TabsContainer, Navigation, Explorer, FakeEditor } from 'src/components';
+import { TabsContainer, Navigation, Explorer, FakeEditor, GraphiQLEditor } from 'src/components';
 import { getSDL, postSDL, graphQLFetcher } from 'src/api';
 import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, printSchema } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-
+import { Voyager } from 'graphql-voyager';
+import { GraphiQL } from 'graphiql';
 // import { buildWithFakeDefinitions } from 'src/fake_definition';
 
 const initialSchema = buildDefaultSchema(`
@@ -162,14 +162,6 @@ export const App = () => {
     }
   };
 
-  // <GraphiQL fetcher={graphQLFetcher} />
-  // <Explorer schema={fullSchema} />
-  // <Voyager
-  // introspection={(e) => graphQLFetcher({ query: e })}
-  // hideSettings={activeTab !== 2}
-  //  workerURI="/voyager.worker.js"
-  // />
-
   return (
     <div className="faker-editor-container">
       <Navigation
@@ -188,7 +180,14 @@ export const App = () => {
             setSchemaEditorValue={updateSchema}
           />,
           <GraphiQL key={2} fetcher={graphQLFetcher} schema={fullSchema} />,
-          <Explorer key={3} schema={fullSchema} />,
+          // <GraphiQLEditor key={2} schema={fullSchema} />,
+          // <Voyager
+          //   key={3}
+          //   introspection={(e) => graphQLFetcher({ query: e })}
+          //   // hideSettings={}
+          //   workerURI="/voyager.worker.js"
+          // />,
+          <Explorer key={4} schema={fullSchema} />,
         ]}
       />
     </div>
