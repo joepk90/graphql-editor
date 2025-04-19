@@ -6,9 +6,15 @@ type Props = {
   schemaEditorValue: string;
   fullSchema: GraphQLSchema;
   setSchemaEditorValue: (schema: string) => void;
+  updateSchema: (schema: string) => void;
 };
 
-export const FakeEditor = ({ schemaEditorValue, fullSchema, setSchemaEditorValue }: Props) => {
+export const FakeEditor = ({
+  schemaEditorValue,
+  fullSchema,
+  setSchemaEditorValue,
+  updateSchema,
+}: Props) => {
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   return (
     <>
@@ -21,7 +27,7 @@ export const FakeEditor = ({ schemaEditorValue, fullSchema, setSchemaEditorValue
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
-          <button className="" onClick={() => setSchemaEditorValue(schemaEditorValue)}>
+          <button className="" onClick={() => updateSchema(schemaEditorValue)}>
             Update Schema
           </button>
         </div>

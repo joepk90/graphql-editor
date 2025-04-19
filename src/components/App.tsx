@@ -181,7 +181,8 @@ export const App = () => {
             key={1}
             fullSchema={fullSchema}
             schemaEditorValue={schemaEditorValue}
-            setSchemaEditorValue={updateSchema}
+            setSchemaEditorValue={setSchemaEditorValue}
+            updateSchema={updateSchema}
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,
           <GraphQLVoyager key={3} />,
