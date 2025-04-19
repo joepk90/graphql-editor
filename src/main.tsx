@@ -1,12 +1,16 @@
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client'; // <-- Import createRoot
+
 import './index.css';
 import { App } from './components/App.tsx';
-import 'graphiql/graphiql.css';
 
-ReactDOM.render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-  document.getElementById('root'),
-);
+const container = document.getElementById('root');
+
+if (container) {
+  const root = createRoot(container); // <-- Create a root
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}
