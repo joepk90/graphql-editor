@@ -21,10 +21,13 @@ const initialSchema = buildDefaultSchema(`
 
 export const App = () => {
   // const [value, setValue] = useState<GraphQLSchema | null>(initialSchema);
-  // const [cachedValue, setCachedValue] = useState<string | null>(null);
+  const [schemaEditorValue, setSchemaEditorValue] = useState<string>('');
+
   const [activeTab, setActiveTab] = useState<number>(0);
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
-  const [schemaEditorValue, setSchemaEditorValue] = useState<string>('');
+
+  // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
+  // const [cachedValue, setCachedValue] = useState<string | null>(null);
   // const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // const [unsavedSchema, setUnsavedSchema] = useState<any>(null);
   // const [error, setError] = useState<string | null>(null);
@@ -32,6 +35,50 @@ export const App = () => {
   // const [schema, setSchema] = useState<GraphQLSchema>(initialSchema);
   // const [remoteSDL, setRemoteSDL] = useState<string | null>(null);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getSDL();
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const schemaText = await response.json();
+        const source = new Source(schemaText.userSDL);
+
+        const newGraphQLSchema = buildDefaultSchema(source);
+        setSchemaEditorValue(printSchema(newGraphQLSchema));
+
+        // Merge the type definitions
+        const mergedTypeDefs = mergeTypeDefs([schemaText.userSDL, schemaText.remoteSDL]);
+
+        // Build an executable schema
+        const schema: GraphQLSchema = makeExecutableSchema({
+          typeDefs: mergedTypeDefs,
+        });
+
+        setFullSchema(schema);
+      } catch (error) {
+        console.error('Error fetching schema:', error);
+      }
+    })();
+  }, []);
+
+  const updateSchema = async (newSchema: string) => {
+    // validate new Schema
+    const source = new Source(newSchema);
+    const newGraphQLSchema = buildDefaultSchema(source);
+
+    try {
+      const sdlString = printSchema(newGraphQLSchema);
+      await postSDL(sdlString);
+      setSchemaEditorValue(sdlString);
+    } catch (error) {
+      console.error('Error building schema:', error);
+    }
+  };
+
+  // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
   // useEffect(() => {
   //   (async () => {
   //     const response = await getSDL();
@@ -53,7 +100,7 @@ export const App = () => {
   //   updateSDL(userSDL, remoteSDL, true);
   // };
 
-  // const buildSchema = (userSDL, remoteSDL?, options?) => {
+  // const buildSchemaWithFakeDefs = (userSDL, remoteSDL?, options?) => {
   //   if (remoteSDL) {
   //     return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL), options);
   //   } else {
@@ -115,56 +162,6 @@ export const App = () => {
   //   setError(errorMsg);
   //   return;
   // };
-
-  // console.log('value', value);
-  // console.log('schema', schema);
-  // if (value == null || schema == null) {
-  //   return <div className="faker-editor-container">Loading...</div>;
-  // }
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await getSDL();
-        console.log('response', response);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const schemaText = await response.json();
-        const source = new Source(schemaText.userSDL);
-
-        const newGraphQLSchema = buildDefaultSchema(source);
-        setSchemaEditorValue(printSchema(newGraphQLSchema));
-
-        // Merge the type definitions
-        const mergedTypeDefs = mergeTypeDefs([schemaText.userSDL, schemaText.remoteSDL]);
-
-        // Build an executable schema
-        const schema: GraphQLSchema = makeExecutableSchema({
-          typeDefs: mergedTypeDefs,
-        });
-
-        setFullSchema(schema);
-      } catch (error) {
-        console.error('Error fetching schema:', error);
-      }
-    })();
-  }, []);
-
-  const updateSchema = async (newSchema: string) => {
-    // validate new Schema
-    const source = new Source(newSchema);
-    const newGraphQLSchema = buildDefaultSchema(source);
-
-    try {
-      const sdlString = printSchema(newGraphQLSchema);
-      const response = await postSDL(sdlString);
-      console.log('response', response);
-    } catch (error) {
-      console.error('Error building schema:', error);
-    }
-  };
 
   return (
     <div className="faker-editor-container">
