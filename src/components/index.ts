@@ -6,3 +6,4 @@ export * from './Navigation';
 export * from './SchemaEditor';
 export * from './GraphiQLEditor';
 export * from './GraphQLVoyager';
+export * from './Explorer';
