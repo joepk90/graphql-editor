@@ -1,9 +1,10 @@
 import { NotFoundError } from './apiUtils';
+import { getApiUrl } from 'src/utils';
 
 const JSONHeader = { 'Content-Type': 'application/json' };
 
 export const AppConfig = {
-  ApiUrl: 'http://localhost:9002',
+  ApiUrl: getApiUrl(),
 };
 
 const enum Method {
