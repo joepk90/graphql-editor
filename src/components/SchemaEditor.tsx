@@ -16,7 +16,7 @@ import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror-graphql/mode'; // GraphQL mode
 import 'codemirror-graphql/hint'; // Autocompletion
 
-import { Editor, EditorConfiguration } from 'codemirror';
+import { Editor, EditorConfiguration, EditorChange } from 'codemirror';
 import { GraphQLSchema, validate, parse, specifiedRules, GraphQLError } from 'graphql';
 
 interface GraphQLHintOptions {
@@ -44,6 +44,10 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({
   setValidationErrors,
 }) => {
   const [editor, setEditor] = useState<Editor | null>(null);
+
+  // const handleChange = (editor: Editor, _data: EditorChange, _value: string) => {
+  //   editor.showHint({ completeSingle: false });
+  // };
 
   const validateGraphQL = (query: string) => {
     try {
@@ -107,6 +111,7 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({
           },
         } as ExtendedEditorConfiguration
       }
+      // onChange={handleChange}
       editorDidMount={(editorInstance: Editor) => {
         setEditor(editorInstance);
       }}
