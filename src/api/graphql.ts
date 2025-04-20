@@ -1,19 +1,13 @@
 import { api } from 'src/api/api';
 import { voyagerIntrospectionQuery } from 'graphql-voyager';
+import { getAuthToken } from 'src/utils';
 
 export const graphQLEndpoint = 'graphql';
 const sdlEndpoint = 'user-sdl';
 
-const authToken = 'XXX';
 const plainTextHeader = { 'Content-Type': 'text/plain' };
 const jsonHeader = { 'Content-Type': 'application/json' };
-const authHeader = {
-  Authorization: `Bearer ${authToken}`,
-};
-// const headers = {
-//   ...jsonHeader,
-//   ...authHeader,
-// };
+const authHeader = { Authorization: `Bearer ${getAuthToken()}` };
 
 // export const graphQLFetcher = async (graphQLParams: GraphQLArgs) => {
 //   console.log('graphQLParams: ', graphQLParams);
