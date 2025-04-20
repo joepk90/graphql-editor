@@ -7,11 +7,14 @@ import {
   GraphQLVoyager,
 } from 'src/components';
 import { getSDL, postSDL } from 'src/api';
-import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, printSchema } from 'graphql';
+import { GraphQLSchema, Source, buildSchema as buildDefaultSchema } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
-// import { buildWithFakeDefinitions } from 'src/fake_definition';
+import { buildWithFakeDefinitions } from 'src/graphql';
+
+// TODO RENAME userSDL to customSDL
+// TODO RENAME remoteSDL to actualSDL
 
 const initialSchema = buildDefaultSchema(`
   type Query {
@@ -23,8 +26,12 @@ export const App = () => {
   // const [value, setValue] = useState<GraphQLSchema | null>(initialSchema);
   const [schemaEditorValue, setSchemaEditorValue] = useState<string>('');
 
+  console.log('schemaEditorValue', schemaEditorValue);
+
   const [activeTab, setActiveTab] = useState<number>(0);
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
+  console.log('TypeMap();', fullSchema.getTypeMap());
+  console.log('fullSchema', fullSchema);
 
   // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
   // const [cachedValue, setCachedValue] = useState<string | null>(null);
@@ -44,20 +51,15 @@ export const App = () => {
         }
 
         const schemaText = await response.json();
-        const source = new Source(schemaText.userSDL);
 
-        const newGraphQLSchema = buildDefaultSchema(source);
-        setSchemaEditorValue(printSchema(newGraphQLSchema));
+        setSchemaEditorValue(schemaText.userSDL);
 
-        // Merge the type definitions
-        const mergedTypeDefs = mergeTypeDefs([schemaText.userSDL, schemaText.remoteSDL]);
+        const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(
+          schemaText.userSDL,
+          schemaText.remoteSDL,
+        );
 
-        // Build an executable schema
-        const schema: GraphQLSchema = makeExecutableSchema({
-          typeDefs: mergedTypeDefs,
-        });
-
-        setFullSchema(schema);
+        setFullSchema(builtSchemaWithFakeDefs);
       } catch (error) {
         console.error('Error fetching schema:', error);
       }
@@ -65,16 +67,26 @@ export const App = () => {
   }, []);
 
   const updateSchema = async (newSchema: string) => {
-    // validate new Schema
-    const source = new Source(newSchema);
-    const newGraphQLSchema = buildDefaultSchema(source);
+    // console.log('TypeMap();', fullSchema.getTypeMap()); // investigate schema types
+
+    const mergedTypeDefs = mergeTypeDefs([newSchema, fullSchema]);
+    makeExecutableSchema({
+      typeDefs: mergedTypeDefs,
+    });
 
     try {
-      const sdlString = printSchema(newGraphQLSchema);
-      await postSDL(sdlString);
-      setSchemaEditorValue(sdlString);
+      await postSDL(newSchema);
+      setSchemaEditorValue(newSchema);
     } catch (error) {
       console.error('Error building schema:', error);
+    }
+  };
+
+  const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string, options?: any) => {
+    if (remoteSDL) {
+      return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL), options);
+    } else {
+      return buildWithFakeDefinitions(new Source(userSDL));
     }
   };
 
@@ -98,14 +110,6 @@ export const App = () => {
   //   setCachedValue(userSDL);
   //   // setRemoteSDL(remoteSDL);
   //   updateSDL(userSDL, remoteSDL, true);
-  // };
-
-  // const buildSchemaWithFakeDefs = (userSDL, remoteSDL?, options?) => {
-  //   if (remoteSDL) {
-  //     return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL), options);
-  //   } else {
-  //     return buildWithFakeDefinitions(new Source(userSDL));
-  //   }
   // };
 
   // const updateSDL = (value, remoteSDL = undefined, noError = false) => {
