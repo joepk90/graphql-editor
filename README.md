@@ -4,6 +4,17 @@ This project is technically a refactor of the [https://github.com/graphql-kit/gr
 The Back End Project can be found here:
 [github.com/joepk90/graphql-faker](https://github.com/joepk90/graphql-faker) 
 
+The main reason for making this project was to change the functionality of extending types. It is now possible to override existing types and return the data that you define. For example:
+
+```
+extend type PreExistingType 	{
+  	PreExisting: Boolean @examples(values: [false])
+}
+```
+
+Also, the existing fields on the type that have not been overridden will continue to return the real data - I don't beleive this was happening in the current version of [https://github.com/graphql-kit/graphql-faker](github.com/graphql-kit/graphql-faker).
+
+---
 
 ## Regression (Warning)
 In the migration process a major regression has taken place. Due to migrating to react-codemirror2, autocompletion has stopped working on the GraphiQL edito.
