@@ -26,12 +26,9 @@ export const App = () => {
   // const [value, setValue] = useState<GraphQLSchema | null>(initialSchema);
   const [schemaEditorValue, setSchemaEditorValue] = useState<string>('');
 
-  console.log('schemaEditorValue', schemaEditorValue);
-
   const [activeTab, setActiveTab] = useState<number>(0);
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
-  console.log('TypeMap();', fullSchema.getTypeMap());
-  console.log('fullSchema', fullSchema);
+  // console.log('TypeMap();', fullSchema.getTypeMap());
 
   // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
   // const [cachedValue, setCachedValue] = useState<string | null>(null);

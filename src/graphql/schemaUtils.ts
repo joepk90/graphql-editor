@@ -94,7 +94,6 @@ export function buildWithFakeDefinitions(
   function extendSchemaWithAST(schema: GraphQLSchema, extensionAST: DocumentNode): GraphQLSchema {
     // TODO this mean to be the inverse - !skipValidation
     if (skipValidation) {
-      console.log('schema ============ 2', schema);
       const errors = [
         ...validateSDL(extensionAST, schema),
         ...validate(schemaWithOnlyFakedDefinitions, extensionAST, [ValuesOfCorrectTypeRule]),
@@ -105,7 +104,6 @@ export function buildWithFakeDefinitions(
         throw new ValidationErrors(errors);
       }
     }
-    console.log('schema ============ 1', schema);
 
     return extendSchema(schema, extensionAST, {
       assumeValid: true,
@@ -148,6 +146,6 @@ function parseSDL(sdl: Source) {
     allowLegacySDLEmptyFields: true,
     allowLegacySDLImplementsInterfaces: true,
   };
-  console.log('===================', sdl);
+
   return parse(sdl);
 }
