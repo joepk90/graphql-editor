@@ -278,10 +278,6 @@ nav > .logo {
 
 /* Schema Editor */
 
-.react-codemirror2 {
-  height: 80vh;
-}
-
 /* Style scrollbars */
 .CodeMirror {
   scrollbar-width: thin;
@@ -300,13 +296,4 @@ nav > .logo {
 
 .CodeMirror::-webkit-scrollbar-track {
   background-color: #e0e0e0;
-}
-
-/* THIS IS A HACK - REMOVE! */
-.schema-editor .CodeMirror:first-of-type {
-  height: 0 !important;
-}
-
-.schema-editor .CodeMirror {
-  height: 80vh !important;
 }
