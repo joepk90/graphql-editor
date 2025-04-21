@@ -30,7 +30,7 @@ This is currently only setup to work with the back end project - [github.com/joe
 It has also only been tested when used to extend existing schema (these are configuration settings in the backend project).
 
 ## TODOs
-- [ ] Can we move all schema/faker definition logic to the backend, and remove it completely from the front end? Can we request the "fake" schema to use in GraphiQL?
+- [ ] Can we move all schema/faker definition logic to the backend, and remove it completely from the front end? Can we request the "fake" schema to use in GraphiQL? Remove duplicate fakeDefinitions logic. 
 - [ ] Make it possible a Request Headers to Voyager in the browser (unsure why this isn't currently possible)
 - [ ] Improve the editors UX:
     - Button design and saving feedback

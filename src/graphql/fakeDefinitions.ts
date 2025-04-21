@@ -1,6 +1,10 @@
 import { allFakers } from '@faker-js/faker';
 import { parse } from 'graphql';
 
+/**
+ * DO NOT CONSIDER/TREAT THIS FILE AT A SOURCE OF TRUTH - IT HAS BEEN COPIED FROM THE BACKEND SERVICE
+ */
+
 export const fakeDefinitionAST = parse(/* GraphQL */ `
     enum fake__Locale {
       ${Object.keys(allFakers).join(' ')}
