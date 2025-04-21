@@ -16,7 +16,7 @@ import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror-graphql/mode'; // GraphQL mode
 import 'codemirror-graphql/hint'; // Autocompletion
 
-import { Editor, EditorConfiguration, EditorChange } from 'codemirror';
+import { Editor, EditorConfiguration } from 'codemirror'; // EditorChange
 import { GraphQLSchema, validate, parse, specifiedRules, GraphQLError } from 'graphql';
 
 interface GraphQLHintOptions {
