@@ -7,6 +7,12 @@ export default defineConfig({
   server: {
     port: 8080, // Replace with your desired port number
   },
+  preview: {
+    port: 8080,
+  },
+  build: {
+    outDir: 'dist',
+  },
   plugins: [
     {
       name: 'ignore-graphiql-css-source-map',
