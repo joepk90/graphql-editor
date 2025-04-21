@@ -13,15 +13,16 @@ import {
   validate,
   validateSchema,
   ValuesOfCorrectTypeRule,
+  printSchema,
 } from 'graphql';
 // FIXME
 import { validateSDL } from 'graphql/validation/validate';
 
+import { fakeDefinitionAST } from 'src/graphql/fakeDefinitions';
+
 /**
  * DO NOT CONSIDER/TREAT THIS FILE AT A SOURCE OF TRUTH - IT HAS BEEN COPIED FROM THE BACKEND SERVICE
  */
-
-import { fakeDefinitionAST } from 'src/graphql/fakeDefinitions';
 
 function defToName(defNode) {
   const { kind, name } = defNode;
@@ -37,14 +38,17 @@ const schemaWithOnlyFakedDefinitions = buildASTSchema(fakeDefinitionAST);
 // FIXME: mark it as valid to be able to run `validate`
 schemaWithOnlyFakedDefinitions['__validationErrors'] = [];
 
+// this function might be a duplicate or unneccesary - TODO move to util file
+function schemaToDocumentNode(schema: GraphQLSchema): DocumentNode {
+  const sdlString = printSchema(schema); // Step 1: Convert schema to SDL string
+  const documentNode = parse(sdlString); // Step 2: Parse string into DocumentNode
+  return documentNode;
+}
+
 export function buildWithFakeDefinitions(
-  schemaSDL: Source,
-  extensionSDL?: Source,
-  options?: { skipValidation: boolean },
+  schemaSDL: Source, // remote SDL
+  extensionSDL?: Source, // userSDL
 ): GraphQLSchema {
-  // console.log('schemaSDL', schemaSDL);
-  // console.log('extensionSDL', extensionSDL);
-  const skipValidation = options?.skipValidation ?? false;
   const schemaAST = parseSDL(schemaSDL);
 
   // Remove Faker's own definitions that were added to have valid SDL for other
@@ -82,34 +86,40 @@ export function buildWithFakeDefinitions(
     }
   }
 
-  if (!skipValidation) {
-    const errors = validateSchema(schema);
-    if (errors.length !== 0) {
-      throw new ValidationErrors(errors);
-    }
+  const errors = validateSchema(schema);
+  if (errors.length !== 0) {
+    throw new ValidationErrors(errors);
   }
 
   return schema;
+}
 
-  function extendSchemaWithAST(schema: GraphQLSchema, extensionAST: DocumentNode): GraphQLSchema {
-    // TODO this mean to be the inverse - !skipValidation
-    if (skipValidation) {
-      const errors = [
-        ...validateSDL(extensionAST, schema),
-        ...validate(schemaWithOnlyFakedDefinitions, extensionAST, [ValuesOfCorrectTypeRule]),
-      ];
+function extendSchemaWithAST(
+  schema: GraphQLSchema, // remoteSDL
+  extensionAST: DocumentNode, // userSDL
+): GraphQLSchema {
+  // fix: allowing us to override properties of the remote schema
+  // using the validateSDL function and passing both the remote Schema and custom schema means
+  // we cannot override types on the main schema:
+  // const validatedSDL = validateSDL(extensionAST, schema); // THIS IS THE PROBLEM
+  // instead we just validate the schema (remove schema), and then later on merge schemas and validate
+  // validating the mains schema may already be being done before it is passed to this function - potentially
+  // should be completely removed
+  const validatedSDL = validateSDL(schemaToDocumentNode(schema)); // THIS IS THE PROBLEM
 
-      console.log('errors', errors);
-      if (errors.length !== 0) {
-        throw new ValidationErrors(errors);
-      }
-    }
+  const validatedWithFakeDefsErrors = validate(schemaWithOnlyFakedDefinitions, extensionAST, [
+    ValuesOfCorrectTypeRule,
+  ]);
 
-    return extendSchema(schema, extensionAST, {
-      assumeValid: true,
-      // commentDescriptions: true,
-    });
+  const errors = [...validatedSDL, ...validatedWithFakeDefsErrors];
+  if (errors.length !== 0) {
+    throw new ValidationErrors(errors);
   }
+
+  return extendSchema(schema, extensionAST, {
+    assumeValid: true,
+    commentDescriptions: true,
+  });
 }
 
 // FIXME: move to 'graphql-js'
@@ -140,12 +150,8 @@ function getDefaultRootTypes(schema) {
 }
 
 function parseSDL(sdl: Source) {
-  // TODO Add back in the options!
-  // parse(sdl, options);
-  const options = {
+  return parse(sdl, {
     allowLegacySDLEmptyFields: true,
     allowLegacySDLImplementsInterfaces: true,
-  };
-
-  return parse(sdl);
+  });
 }

@@ -79,9 +79,9 @@ export const App = () => {
     }
   };
 
-  const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string, options?: any) => {
+  const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
     if (remoteSDL) {
-      return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL), options);
+      return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL));
     } else {
       return buildWithFakeDefinitions(new Source(userSDL));
     }
