@@ -97,7 +97,17 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
     };
   }, [schema, value]);
 
-  return <div ref={editorContainer} id="editor" style={{ height: '100vh' }} />;
+  return (
+    <div
+      ref={editorContainer}
+      id="editor"
+      // TODO potentially move to container component
+      style={{
+        height: '90vh',
+        overflow: 'auto',
+      }}
+    />
+  );
 };
 
 // Hot Module Replacement
