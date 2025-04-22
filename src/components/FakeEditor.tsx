@@ -16,7 +16,6 @@ export const FakeEditor = ({
   hasUnsavedChanges,
   error,
 }: Props) => {
-  console.log('fullSchema: ', fullSchema);
   return (
     <>
       <GraphQLSchemaEditor value={schemaEditorValue} schema={fullSchema} />

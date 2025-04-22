@@ -41,8 +41,6 @@ interface GraphQLCodeEditorProps {
 export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, value }) => {
   const editorContainer = useRef(null);
 
-  console.log('schema: ', schema);
-
   useEffect(() => {
     const state = EditorState.create({
       doc: value,
