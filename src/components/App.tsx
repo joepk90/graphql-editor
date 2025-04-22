@@ -7,7 +7,7 @@ import {
   GraphQLVoyager,
 } from 'src/components';
 import { getSDL, postSDL } from 'src/api';
-import { GraphQLSchema, Source, buildSchema as buildDefaultSchema } from 'graphql';
+import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, GraphQLError } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
@@ -29,7 +29,7 @@ export const App = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
   // console.log('TypeMap();', fullSchema.getTypeMap());
-
+  const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
   // const [cachedValue, setCachedValue] = useState<string | null>(null);
   // const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
@@ -179,8 +179,9 @@ export const App = () => {
             key={1}
             fullSchema={fullSchema}
             schemaEditorValue={schemaEditorValue}
-            setSchemaEditorValue={setSchemaEditorValue}
             updateSchema={updateSchema}
+            error={validationErrors.length > 0 ? validationErrors[0].toString() : undefined} // TODO error logic out
+            hasUnsavedChanges={true} // TODO
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,
           <GraphQLVoyager key={3} />,

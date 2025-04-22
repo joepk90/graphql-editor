@@ -1,44 +1,40 @@
-import { useState } from 'react';
-import { GraphQLSchema, GraphQLError } from 'graphql';
+import { GraphQLSchema } from 'graphql';
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
 
 type Props = {
   schemaEditorValue: string;
   fullSchema: GraphQLSchema;
-  setSchemaEditorValue: (schema: string) => void;
+  hasUnsavedChanges: boolean;
+  error?: string;
   updateSchema: (schema: string) => void;
 };
 
 export const FakeEditor = ({
   schemaEditorValue,
   fullSchema,
-  setSchemaEditorValue,
   updateSchema,
+  hasUnsavedChanges,
+  error,
 }: Props) => {
   console.log('fullSchema: ', fullSchema);
-  const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   return (
     <>
       <GraphQLSchemaEditor value={schemaEditorValue} schema={fullSchema} />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <button className="" onClick={() => updateSchema(schemaEditorValue)}>
-            Update Schema
-          </button>
+      <div className="action-panel">
+        <a
+          className={`material-button ${hasUnsavedChanges ? '' : '-disabled'}`}
+          onClick={() => updateSchema(schemaEditorValue)}
+        >
+          <span> Save </span>
+        </a>
+        <div className="status-bar">
+          {/* <span className="status"> {status} </span> */}
+          {error && <span className="error-message">{error}</span>}
         </div>
-
-        {validationErrors.length > 0 && (
-          <div style={{ color: 'red', marginTop: '10px', fontSize: '12px', textAlign: 'right' }}>
-            <h4>Validation Errors:</h4>
-            <ul>
-              {validationErrors.map((error, index) => (
-                <li key={index}>{error.message}</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}></div>
     </>
   );
 };
