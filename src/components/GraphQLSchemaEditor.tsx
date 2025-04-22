@@ -60,6 +60,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
             alert(`Filling all fields. Token: ${token}`);
           },
         }),
+        // TODO use fake schema validation here... then set validation errors...
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const text = update.state.doc.toString();
