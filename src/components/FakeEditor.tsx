@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { SchemaEditor } from 'src/components';
 import { GraphQLSchema, GraphQLError } from 'graphql';
+import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
 
 type Props = {
   schemaEditorValue: string;
@@ -15,15 +15,11 @@ export const FakeEditor = ({
   setSchemaEditorValue,
   updateSchema,
 }: Props) => {
+  console.log('fullSchema: ', fullSchema);
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   return (
     <>
-      <SchemaEditor
-        value={schemaEditorValue}
-        onChange={setSchemaEditorValue}
-        setValidationErrors={setValidationErrors}
-        schema={fullSchema}
-      />
+      <GraphQLSchemaEditor value={schemaEditorValue} schema={fullSchema} />
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
