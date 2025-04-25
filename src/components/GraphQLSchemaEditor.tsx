@@ -7,18 +7,25 @@ import {
   parse,
   validate,
 } from 'graphql';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers } from '@codemirror/view';
-import { history } from '@codemirror/commands';
-import { autocompletion, closeBrackets } from '@codemirror/autocomplete';
+import { history, defaultKeymap, indentWithTab } from '@codemirror/commands';
+import {
+  autocompletion,
+  closeBrackets,
+  acceptCompletion,
+  completionStatus,
+  completionKeymap,
+} from '@codemirror/autocomplete';
 import { bracketMatching, syntaxHighlighting } from '@codemirror/language';
 import { oneDarkHighlightStyle, oneDark } from '@codemirror/theme-one-dark';
-import { defaultKeymap } from '@codemirror/commands';
 import { graphql } from 'cm6-graphql';
 
 // import { abcdef } from '@uiw/codemirror-themes';
 // import { smoothy } from 'thememirror';
 const height = '92vh';
+
+const keymapCompartment = new Compartment();
 
 export const TestSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -52,6 +59,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
     const state = EditorState.create({
       doc: value,
       extensions: [
+        keymapCompartment.of([]), // placeholder
         minLinesExtension,
         bracketMatching(),
         closeBrackets(),
@@ -96,6 +104,27 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
     const view = new EditorView({
       state,
       parent: editorContainer.current!,
+    });
+
+    view.dispatch({
+      effects: keymapCompartment.reconfigure(
+        keymap.of([
+          {
+            key: 'Tab',
+            preventDefault: true,
+            run: (view) => {
+              const status = completionStatus(view.state);
+              if (status === 'active') {
+                return acceptCompletion(view);
+              }
+              // return (indentWithTab.run as (view: EditorView) => boolean)(view);
+              return indentWithTab?.run?.(view) ?? false;
+            },
+          },
+          ...defaultKeymap,
+          ...completionKeymap,
+        ]),
+      ),
     });
 
     // Cleanup on component unmount
