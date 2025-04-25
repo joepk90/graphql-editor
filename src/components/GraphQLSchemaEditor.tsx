@@ -4,8 +4,8 @@ import {
   GraphQLSchema,
   GraphQLString,
   GraphQLError,
-  parse,
-  validate,
+  validateSchema,
+  printSchema,
 } from 'graphql';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers } from '@codemirror/view';
@@ -20,6 +20,7 @@ import {
 import { bracketMatching, syntaxHighlighting } from '@codemirror/language';
 import { oneDarkHighlightStyle, oneDark } from '@codemirror/theme-one-dark';
 import { graphql } from 'cm6-graphql';
+import { buildSchemaWithFakeDefs } from 'src/components/App';
 
 // import { abcdef } from '@uiw/codemirror-themes';
 // import { smoothy } from 'thememirror';
@@ -83,14 +84,13 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
             alert(`Filling all fields. Token: ${token}`);
           },
         }),
-        // TODO use fake schema validation here... then set validation errors...
+
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const text = update.state.doc.toString();
             try {
-              const parsed = parse(text);
-              // const errors = validate(TestSchema, parsed, specifiedRules);
-              const errors = validate(schema, parsed);
+              const fakeSchema = buildSchemaWithFakeDefs(text, printSchema(schema));
+              const errors = validateSchema(fakeSchema);
               if (errors.length) {
                 setValidationErrors(Array.from(errors));
                 console.error('Validation Errors:', errors);
