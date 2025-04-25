@@ -88,7 +88,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
           onShowInDocs(field, type, parentType) {
             alert(`Showing in docs.: Field: ${field}, Type: ${type}, ParentType: ${parentType}`);
           },
-          onFillAllFields(view, schema, _query, cursor, token) {
+          onFillAllFields(_view, _schema, _query, _cursor, token) {
             alert(`Filling all fields. Token: ${token}`);
           },
         }),
