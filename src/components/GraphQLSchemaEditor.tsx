@@ -49,9 +49,9 @@ const minLinesExtension = EditorView.theme({
 interface GraphQLCodeEditorProps {
   value: string | undefined;
   schema: GraphQLSchema;
-  onChange?: (newValue: string) => void;
-  onReady: (view: EditorView) => void;
+  handleEditorValueChange: (view: string) => void;
   setValidationErrors: (errors: GraphQLError[]) => void;
+  setErrorMessage: (errorMsg: string | null) => void;
 }
 
 // TODO what happens when eitehr the schema of value is updated?
@@ -59,14 +59,22 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
   schema,
   value,
   setValidationErrors,
-  onReady,
+  setErrorMessage,
+  handleEditorValueChange,
 }) => {
   const editorContainer = useRef(null);
 
   useEffect(() => {
+    const listener = EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        handleEditorValueChange(update.state.doc.toString());
+      }
+    });
+
     const state = EditorState.create({
       doc: value,
       extensions: [
+        listener,
         keymapCompartment.of([]), // placeholder
         minLinesExtension,
         bracketMatching(),
@@ -95,9 +103,11 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
                 setValidationErrors(Array.from(errors));
                 console.error('Validation Errors:', errors);
               } else {
+                setErrorMessage(null);
                 console.log('No validation errors');
               }
             } catch (err) {
+              setErrorMessage(String(err));
               console.error('Parse Error:', err);
             }
           }
@@ -134,8 +144,6 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
         ]),
       ),
     });
-
-    onReady(view);
 
     // Cleanup on component unmount
     return () => {

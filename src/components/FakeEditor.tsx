@@ -1,7 +1,6 @@
 import { GraphQLSchema, GraphQLError } from 'graphql';
 
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
-import { EditorView } from '@codemirror/view';
 
 type Props = {
   initialSchemaEditorValue: string | undefined;
@@ -9,9 +8,10 @@ type Props = {
   hasUnsavedChanges: boolean;
   saveUpdateStatus: string | null;
   saveSchema: () => void;
+  setErrorMessage: (errorMsg: string | null) => void;
   errorMessage: string | undefined;
   setValidationErrors: (errors: GraphQLError[]) => void;
-  onReady: (view: EditorView) => void;
+  handleEditorValueChange: (view: string) => void;
 };
 
 export const FakeEditor = ({
@@ -19,10 +19,11 @@ export const FakeEditor = ({
   fullSchema,
   saveSchema,
   setValidationErrors,
+  setErrorMessage,
   errorMessage,
   hasUnsavedChanges,
   saveUpdateStatus,
-  onReady,
+  handleEditorValueChange,
 }: Props) => {
   const isButtonDisabled = () => {
     // if there is an error message, the button should not be clickable
@@ -53,7 +54,8 @@ export const FakeEditor = ({
         value={initialSchemaEditorValue}
         schema={fullSchema}
         setValidationErrors={setValidationErrors}
-        onReady={onReady}
+        setErrorMessage={setErrorMessage}
+        handleEditorValueChange={handleEditorValueChange}
       />
 
       <div className="action-panel">

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   TabsContainer,
   Navigation,
@@ -10,10 +10,10 @@ import { getSDL, postSDL } from 'src/api';
 import { GraphQLSchema, Source, buildSchema, GraphQLError } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { EditorView } from '@codemirror/view';
 
 import { buildWithFakeDefinitions } from 'src/graphql';
 
+// TODO move out of this file
 // build the schema with just the user schema, or both the user schema and remote schema
 export const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
   if (remoteSDL) {
@@ -41,21 +41,21 @@ export const App = () => {
   // by the editor for autocompletion/validation
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
 
-  // value saved on the server
+  // value saved on the server (stored here in memory for comparisons)
   const [remoteSchemaValue, setRemoteSchemaValue] = useState<string | undefined>(undefined);
+
+  // the value of the text in the schema editor
+  const [schemaEditorValue, setSchemaEditorValue] = useState<string | undefined>(undefined);
 
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   const [saveUpdateStatus, setSaveUpdateStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // editor state
-  const editorRef = useRef<EditorView | null>(null);
-  const schemaEditorValue = editorRef.current?.state.doc.toString();
-  const handleEditorReady = (view: EditorView) => {
-    editorRef.current = view;
+  // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
+  const handleEditorValueChange = (value: string) => {
+    setSchemaEditorValue(value);
   };
 
-  // TODO: not fully working - showing as true during first load
   const checkForUnsavedChanges = useMemo(
     () => () => {
       // if the remote schema or full schema have not yet been requested and set,
@@ -65,7 +65,7 @@ export const App = () => {
       }
 
       // if the remote schema or full schema have not yet been requested and set,
-      if (schemaEditorValue === '') {
+      if (schemaEditorValue === undefined) {
         return false;
       }
 
@@ -113,7 +113,8 @@ export const App = () => {
       return;
     }
 
-    if (errorMessage || validationErrors) {
+    // don't allow saving if an error is set
+    if (getErrorMessage()) {
       return;
     }
 
@@ -158,7 +159,7 @@ export const App = () => {
       return errorMessage;
     }
 
-    if (validationErrors && validationErrors.length) {
+    if (validationErrors && validationErrors.length > 0) {
       return Array.from(validationErrors)[0].toString();
     }
   };
@@ -184,11 +185,12 @@ export const App = () => {
         children={[
           <FakeEditor
             key={1}
-            onReady={handleEditorReady}
+            handleEditorValueChange={handleEditorValueChange}
             fullSchema={fullSchema}
             initialSchemaEditorValue={remoteSchemaValue}
             saveSchema={saveSchema}
             setValidationErrors={setValidationErrors}
+            setErrorMessage={setErrorMessage}
             errorMessage={getErrorMessage()}
             hasUnsavedChanges={hasUnsavedChanges}
             saveUpdateStatus={saveUpdateStatus}
