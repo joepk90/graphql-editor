@@ -14,6 +14,7 @@ import { EditorView } from '@codemirror/view';
 
 import { buildWithFakeDefinitions } from 'src/graphql';
 
+// build the schema with just the user schema, or both the user schema and remote schema
 export const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
   if (remoteSDL) {
     return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL));
@@ -35,8 +36,14 @@ export const App = () => {
   // console.log('TypeMap();', fullSchema.getTypeMap());
   const [activeTab, setActiveTab] = useState<number>(0);
 
+  // the full schema will either be a remote schema extended with the users schema, or it could be
+  // the  users schema, and is identical to the remote schema, but will be used
+  // by the editor for autocompletion/validation
   const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
+
+  // value saved on the server
   const [remoteSchemaValue, setRemoteSchemaValue] = useState<string | undefined>(undefined);
+
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   const [saveUpdateStatus, setSaveUpdateStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -72,6 +79,7 @@ export const App = () => {
 
         setRemoteSchemaValue(schemaText.userSDL);
 
+        // remote SDL (schema) may be undefined, meaning we only build with the user sdl
         const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(
           schemaText.userSDL,
           schemaText.remoteSDL,
