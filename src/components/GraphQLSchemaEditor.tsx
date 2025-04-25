@@ -18,6 +18,7 @@ import { graphql } from 'cm6-graphql';
 
 // import { abcdef } from '@uiw/codemirror-themes';
 // import { smoothy } from 'thememirror';
+const height = '92vh';
 
 export const TestSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -102,7 +103,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
       id="editor"
       // TODO potentially move to container component
       style={{
-        height: '90vh',
+        height: height,
         overflow: 'auto',
       }}
     />
