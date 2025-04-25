@@ -1,24 +1,30 @@
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, GraphQLError } from 'graphql';
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
 
 type Props = {
   schemaEditorValue: string;
   fullSchema: GraphQLSchema;
   hasUnsavedChanges: boolean;
-  error?: string;
   updateSchema: (schema: string) => void;
+  validationErrors: GraphQLError[];
+  setValidationErrors: (errors: GraphQLError[]) => void;
 };
 
 export const FakeEditor = ({
   schemaEditorValue,
   fullSchema,
   updateSchema,
+  setValidationErrors,
+  validationErrors,
   hasUnsavedChanges,
-  error,
 }: Props) => {
   return (
     <div className="fake-editor">
-      <GraphQLSchemaEditor value={schemaEditorValue} schema={fullSchema} />
+      <GraphQLSchemaEditor
+        value={schemaEditorValue}
+        schema={fullSchema}
+        setValidationErrors={setValidationErrors}
+      />
 
       <div className="action-panel">
         <a
@@ -29,7 +35,9 @@ export const FakeEditor = ({
         </a>
         <div className="status-bar">
           {/* <span className="status"> {status} </span> */}
-          {error && <span className="error-message">{error}</span>}
+          {validationErrors?.length && (
+            <span className="error-message">{validationErrors[0].toString()}</span>
+          )}
         </div>
       </div>
     </div>

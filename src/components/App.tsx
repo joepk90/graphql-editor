@@ -180,7 +180,8 @@ export const App = () => {
             fullSchema={fullSchema}
             schemaEditorValue={schemaEditorValue}
             updateSchema={updateSchema}
-            error={validationErrors.length > 0 ? validationErrors[0].toString() : undefined} // TODO error logic out
+            setValidationErrors={setValidationErrors}
+            validationErrors={Array.from(validationErrors)}
             hasUnsavedChanges={true} // TODO
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,

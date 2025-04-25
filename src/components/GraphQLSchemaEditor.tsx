@@ -49,10 +49,14 @@ interface GraphQLCodeEditorProps {
   value: string;
   schema: GraphQLSchema;
   onChange?: (newValue: string) => void;
-  setValidationErrors?: (errors: GraphQLError[]) => void;
+  setValidationErrors: (errors: GraphQLError[]) => void;
 }
 
-export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, value }) => {
+export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
+  schema,
+  value,
+  setValidationErrors,
+}) => {
   const editorContainer = useRef(null);
 
   useEffect(() => {
@@ -83,8 +87,9 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
             try {
               const parsed = parse(text);
               // const errors = validate(TestSchema, parsed, specifiedRules);
-              const errors = validate(TestSchema, parsed);
+              const errors = validate(schema, parsed);
               if (errors.length) {
+                setValidationErrors(Array.from(errors));
                 console.error('Validation Errors:', errors);
               } else {
                 console.log('No validation errors');
