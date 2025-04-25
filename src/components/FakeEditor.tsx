@@ -17,7 +17,7 @@ export const FakeEditor = ({
   error,
 }: Props) => {
   return (
-    <>
+    <div className="fake-editor">
       <GraphQLSchemaEditor value={schemaEditorValue} schema={fullSchema} />
 
       <div className="action-panel">
@@ -32,8 +32,6 @@ export const FakeEditor = ({
           {error && <span className="error-message">{error}</span>}
         </div>
       </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}></div>
-    </>
+    </div>
   );
 };
