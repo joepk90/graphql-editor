@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import {
   TabsContainer,
   Navigation,
@@ -10,8 +10,17 @@ import { getSDL, postSDL } from 'src/api';
 import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, GraphQLError } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { EditorView } from '@codemirror/view';
 
 import { buildWithFakeDefinitions } from 'src/graphql';
+
+export const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
+  if (remoteSDL) {
+    return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL));
+  } else {
+    return buildWithFakeDefinitions(new Source(userSDL));
+  }
+};
 
 // TODO RENAME userSDL to customSDL
 // TODO RENAME remoteSDL to actualSDL
@@ -23,21 +32,33 @@ const initialSchema = buildDefaultSchema(`
 `);
 
 export const App = () => {
-  // const [value, setValue] = useState<GraphQLSchema | null>(initialSchema);
-  const [schemaEditorValue, setSchemaEditorValue] = useState<string>('');
-
-  const [activeTab, setActiveTab] = useState<number>(0);
-  const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
   // console.log('TypeMap();', fullSchema.getTypeMap());
+  const [activeTab, setActiveTab] = useState<number>(0);
+
+  const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
+  const [remoteSchemaValue, setRemoteSchemaValue] = useState<string | undefined>(undefined);
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
-  // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
-  // const [cachedValue, setCachedValue] = useState<string | null>(null);
-  // const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  // const [unsavedSchema, setUnsavedSchema] = useState<any>(null);
-  // const [error, setError] = useState<string | null>(null);
-  // const [status, setStatus] = useState<string | null>(null);
-  // const [schema, setSchema] = useState<GraphQLSchema>(initialSchema);
-  // const [remoteSDL, setRemoteSDL] = useState<string | null>(null);
+  const [saveUpdateStatus, setSaveUpdateStatus] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // editor state
+  const editorRef = useRef<EditorView | null>(null);
+  const schemaEditorValue = editorRef.current?.state.doc.toString();
+  const handleEditorReady = (view: EditorView) => {
+    editorRef.current = view;
+  };
+
+  // TODO: not fully working - showing as true during first load
+  const checkForUnsavedChanges = useMemo(
+    () => (schemaEditorValue: string | undefined, remoteShemaValue: string | undefined) => {
+      if (remoteSchemaValue === undefined) {
+        return false;
+      }
+
+      return schemaEditorValue !== remoteShemaValue;
+    },
+    [schemaEditorValue, remoteSchemaValue],
+  );
 
   useEffect(() => {
     (async () => {
@@ -49,7 +70,7 @@ export const App = () => {
 
         const schemaText = await response.json();
 
-        setSchemaEditorValue(schemaText.userSDL);
+        setRemoteSchemaValue(schemaText.userSDL);
 
         const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(
           schemaText.userSDL,
@@ -58,117 +79,77 @@ export const App = () => {
 
         setFullSchema(builtSchemaWithFakeDefs);
       } catch (error) {
+        setErrorMessage('Error fetching schema');
         console.error('Error fetching schema:', error);
       }
     })();
+
+    window.onbeforeunload = () => {
+      if (hasUnsavedChanges) return 'You have unsaved changes. Exit?';
+    };
   }, []);
 
-  const updateSchema = async (newSchema: string) => {
-    // console.log('TypeMap();', fullSchema.getTypeMap()); // investigate schema types
+  const saveSchema = async () => {
+    // don't allow saving the schema until there is at least a value from the editor
+    if (!schemaEditorValue) {
+      return;
+    }
 
-    const mergedTypeDefs = mergeTypeDefs([newSchema, fullSchema]);
-    makeExecutableSchema({
-      typeDefs: mergedTypeDefs,
-    });
+    const mergedTypeDefs = mergeTypeDefs([schemaEditorValue, fullSchema]);
 
     try {
-      await postSDL(newSchema);
-      setSchemaEditorValue(newSchema);
+      // validation
+      makeExecutableSchema({
+        typeDefs: mergedTypeDefs,
+      });
     } catch (error) {
       console.error('Error building schema:', error);
+      setErrorMessage('Error building schema');
+      return;
     }
-  };
 
-  const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
-    if (remoteSDL) {
-      return buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL));
+    let response: Response;
+
+    try {
+      response = await postSDL(schemaEditorValue);
+    } catch (error) {
+      console.error('Error posting schema:', error);
+      return;
+    }
+
+    if (response.ok) {
+      setUpdateStatusWithClear('Saved!', 2000);
+      setRemoteSchemaValue(schemaEditorValue);
     } else {
-      return buildWithFakeDefinitions(new Source(userSDL));
+      const errorMsg = await response.text();
+      setErrorMessage(errorMsg);
+      return;
     }
   };
 
-  // UNUSED CODE - CONSIDER REMOVING OR IMPLEMENTING
-  // useEffect(() => {
-  //   (async () => {
-  //     const response = await getSDL();
+  const getErrorMessage = () => {
+    if (errorMessage) {
+      return errorMessage;
+    }
 
-  //     const sdls = await response.json();
-  //     console.log('test', sdls);
-  //     updateValue(sdls);
-  //   })();
+    if (validationErrors && validationErrors.length) {
+      return Array.from(validationErrors)[0].toString();
+    }
+  };
 
-  //   window.onbeforeunload = () => {
-  //     if (hasUnsavedChanges) return 'You have unsaved changes. Exit?';
-  //   };
-  // }, []);
+  const setUpdateStatusWithClear = (status: string, delay: number) => {
+    setSaveUpdateStatus(status);
+    if (!delay) return;
+    setTimeout(() => {
+      setSaveUpdateStatus(null);
+    }, delay);
+  };
 
-  // const updateValue = async ({ userSDL, remoteSDL: remoteSDL }) => {
-  //   setValue(userSDL);
-  //   setCachedValue(userSDL);
-  //   // setRemoteSDL(remoteSDL);
-  //   updateSDL(userSDL, remoteSDL, true);
-  // };
-
-  // const updateSDL = (value, remoteSDL = undefined, noError = false) => {
-  //   try {
-  //     const builtSchema = buildSchema(value, remoteSDL);
-  //     setError(null);
-  //     setSchema(builtSchema);
-
-  //     return true;
-  //   } catch (e) {
-  //     if (noError) return;
-  //     setError(e.message);
-  //     return false;
-  //   }
-  // };
-
-  // const onEdit = (val) => {
-  //   if (error) updateSDL(val);
-  //   let unsavedSchema = null as GraphQLSchema | null;
-  //   try {
-  //     unsavedSchema = buildSchema(val, { skipValidation: true });
-  //   } catch (_) {
-  //     // FIXME
-  //   }
-
-  //   setValue(val);
-  //   setHasUnsavedChanges(val !== cachedValue);
-  //   setUnsavedSchema(unsavedSchema);
-  // };
-
-  // const setStatusWithClear = (status, delay) => {
-  //   setStatus(status);
-  //   if (!delay) return;
-  //   setTimeout(() => {
-  //     setStatus(null);
-  //   }, delay);
-  // };
-
-  // const saveUserSDL = async () => {
-  //   if (!hasUnsavedChanges) return;
-
-  //   if (!updateSDL(value)) return;
-
-  //   const response = await postSDL(value);
-  //   if (response.ok) {
-  //     setStatusWithClear('Saved!', 2000);
-  //     setCachedValue(value);
-  //     setHasUnsavedChanges(false);
-  //     setUnsavedSchema(null);
-  //     setError(null);
-  //     return;
-  //   }
-  //   const errorMsg = await response.text();
-  //   setError(errorMsg);
-  //   return;
-  // };
-
+  const hasUnsavedChanges = checkForUnsavedChanges(schemaEditorValue, remoteSchemaValue);
   return (
     <div className="faker-editor-container">
       <Navigation
-        // hasUnsavedChanges={hasUnsavedChanges}
-        hasUnsavedChanges={false}
+        hasUnsavedChanges={hasUnsavedChanges}
         activeTab={activeTab}
         switchTab={setActiveTab}
       />
@@ -177,12 +158,14 @@ export const App = () => {
         children={[
           <FakeEditor
             key={1}
+            onReady={handleEditorReady}
             fullSchema={fullSchema}
-            schemaEditorValue={schemaEditorValue}
-            updateSchema={updateSchema}
+            initialSchemaEditorValue={remoteSchemaValue}
+            saveSchema={saveSchema}
             setValidationErrors={setValidationErrors}
-            validationErrors={Array.from(validationErrors)}
-            hasUnsavedChanges={true} // TODO
+            errorMessage={getErrorMessage()}
+            hasUnsavedChanges={hasUnsavedChanges}
+            saveUpdateStatus={saveUpdateStatus}
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,
           <GraphQLVoyager key={3} />,

@@ -46,16 +46,19 @@ const minLinesExtension = EditorView.theme({
 });
 
 interface GraphQLCodeEditorProps {
-  value: string;
+  value: string | undefined;
   schema: GraphQLSchema;
   onChange?: (newValue: string) => void;
+  onReady: (view: EditorView) => void;
   setValidationErrors: (errors: GraphQLError[]) => void;
 }
 
+// TODO what happens when eitehr the schema of value is updated?
 export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
   schema,
   value,
   setValidationErrors,
+  onReady,
 }) => {
   const editorContainer = useRef(null);
 
@@ -131,6 +134,8 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
         ]),
       ),
     });
+
+    onReady(view);
 
     // Cleanup on component unmount
     return () => {

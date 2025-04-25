@@ -1,43 +1,68 @@
 import { GraphQLSchema, GraphQLError } from 'graphql';
+
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
+import { EditorView } from '@codemirror/view';
 
 type Props = {
-  schemaEditorValue: string;
+  initialSchemaEditorValue: string | undefined;
   fullSchema: GraphQLSchema;
   hasUnsavedChanges: boolean;
-  updateSchema: (schema: string) => void;
-  validationErrors: GraphQLError[];
+  saveUpdateStatus: string | null;
+  saveSchema: () => void;
+  errorMessage: string | undefined;
   setValidationErrors: (errors: GraphQLError[]) => void;
+  onReady: (view: EditorView) => void;
 };
 
 export const FakeEditor = ({
-  schemaEditorValue,
+  initialSchemaEditorValue,
   fullSchema,
-  updateSchema,
+  saveSchema,
   setValidationErrors,
-  validationErrors,
+  errorMessage,
   hasUnsavedChanges,
+  saveUpdateStatus,
+  onReady,
 }: Props) => {
+  const isButtonDisabled = () => {
+    // if there is an error message, the button should not be clickable
+    if (errorMessage) {
+      return true;
+    }
+
+    // if there is a save update status, the button has just been clicked
+    // and we don't want to allow multiple save attempts
+    if (saveUpdateStatus) {
+      return true;
+    }
+
+    // if there are no differences, we don't want allow it to be saved, as it's the same
+    if (!hasUnsavedChanges) {
+      return true;
+    }
+
+    // if all the other conditions fail, enable the button
+    return false;
+  };
+
+  const isDisabledClass = isButtonDisabled() ? '-disabled' : '';
+
   return (
     <div className="fake-editor">
       <GraphQLSchemaEditor
-        value={schemaEditorValue}
+        value={initialSchemaEditorValue}
         schema={fullSchema}
         setValidationErrors={setValidationErrors}
+        onReady={onReady}
       />
 
       <div className="action-panel">
-        <a
-          className={`material-button ${hasUnsavedChanges ? '' : '-disabled'}`}
-          onClick={() => updateSchema(schemaEditorValue)}
-        >
+        <a className={`material-button ${isDisabledClass}`} onClick={saveSchema}>
           <span> Save </span>
         </a>
         <div className="status-bar">
-          {/* <span className="status"> {status} </span> */}
-          {validationErrors?.length && (
-            <span className="error-message">{validationErrors[0].toString()}</span>
-          )}
+          <span className="status"> {saveUpdateStatus} </span>
+          {errorMessage && <span className="error-message">{errorMessage}</span>}
         </div>
       </div>
     </div>
