@@ -57,12 +57,14 @@ export const App = () => {
 
   // TODO: not fully working - showing as true during first load
   const checkForUnsavedChanges = useMemo(
-    () => (schemaEditorValue: string | undefined, remoteShemaValue: string | undefined) => {
+    () => () => {
       if (remoteSchemaValue === undefined) {
         return false;
       }
 
-      return schemaEditorValue !== remoteShemaValue;
+      // if the schema editor value does not match the value of the schema saved on
+      // the server, this means there are unsaved changes...
+      return schemaEditorValue !== remoteSchemaValue;
     },
     [schemaEditorValue, remoteSchemaValue],
   );
@@ -153,7 +155,7 @@ export const App = () => {
     }, delay);
   };
 
-  const hasUnsavedChanges = checkForUnsavedChanges(schemaEditorValue, remoteSchemaValue);
+  const hasUnsavedChanges = checkForUnsavedChanges();
   return (
     <div className="faker-editor-container">
       <Navigation
