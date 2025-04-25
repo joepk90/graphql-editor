@@ -7,7 +7,7 @@ import {
   GraphQLVoyager,
 } from 'src/components';
 import { getSDL, postSDL } from 'src/api';
-import { GraphQLSchema, Source, buildSchema as buildDefaultSchema, GraphQLError } from 'graphql';
+import { GraphQLSchema, Source, buildSchema, GraphQLError } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { EditorView } from '@codemirror/view';
@@ -26,7 +26,7 @@ export const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => 
 // TODO RENAME userSDL to customSDL
 // TODO RENAME remoteSDL to actualSDL
 
-const initialSchema = buildDefaultSchema(`
+const initialSchema = buildSchema(`
   type Query {
     _empty: String
   }
@@ -58,7 +58,14 @@ export const App = () => {
   // TODO: not fully working - showing as true during first load
   const checkForUnsavedChanges = useMemo(
     () => () => {
-      if (remoteSchemaValue === undefined) {
+      // if the remote schema or full schema have not yet been requested and set,
+      // there cannot be any unsaved changes to consider
+      if (remoteSchemaValue === undefined || fullSchema === undefined) {
+        return false;
+      }
+
+      // if the remote schema or full schema have not yet been requested and set,
+      if (schemaEditorValue === '') {
         return false;
       }
 
@@ -100,8 +107,17 @@ export const App = () => {
   }, []);
 
   const saveSchema = async () => {
-    // don't allow saving the schema until there is at least a value from the editor
-    if (!schemaEditorValue) {
+    // don't allow saving until the fullSchema has not yet loaded,
+    // don't allow saving until there is at least a value from the editor
+    if (!schemaEditorValue || !fullSchema) {
+      return;
+    }
+
+    if (errorMessage || validationErrors) {
+      return;
+    }
+
+    if (!hasUnsavedChanges) {
       return;
     }
 
