@@ -32,6 +32,12 @@ export const TestSchema = new GraphQLSchema({
   }),
 });
 
+const minLinesExtension = EditorView.theme({
+  '&': {
+    minHeight: height, // or calculate via lineHeight * minLines
+  },
+});
+
 interface GraphQLCodeEditorProps {
   value: string;
   schema: GraphQLSchema;
@@ -46,6 +52,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({ schema, 
     const state = EditorState.create({
       doc: value,
       extensions: [
+        minLinesExtension,
         bracketMatching(),
         closeBrackets(),
         history(),
