@@ -29,3 +29,17 @@ docker-tag:
 
 docker-push:
 	docker push ${DOCKER_IMAGE}:latest
+
+# start the server (used for developing the front end)
+# https://github.com/joepk90/graphql-faker
+docker-run-server:
+	docker run -it \
+	-e ALLOWED_HOSTS=http://localhost:8080 \
+	-e PORT=9092 \
+	-e SCHEMA_FILE_NAME=schema_extension \
+	-e USTOM_HEADERS=user-agent,authorization \
+	-e EXTEND_URL=https://swapi-graphql.netlify.app/graphql \
+	jparkkennaby/graphql-faker
+
+# Future TODO: rename the image (jparkkennaby/graphql-faker-server)
+# Future TODO: remove SCHEMA_FILE_NAME and port (potentially share a volume for the SCHEMA_FILE_NAME)
