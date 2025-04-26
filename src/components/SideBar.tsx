@@ -4,13 +4,13 @@ import { ConsoleIcon, EditIcon, GithubIcon, VoyagerIcon } from 'src/components/I
 
 const navigationItemClassName = 'navigation-item';
 
-type NavigationProps = {
+type SideBarProps = {
   hasUnsavedChanges: boolean;
   activeTab: number;
   switchTab: (tab: number) => void;
 };
 
-export const Navigation: FC<NavigationProps> = ({ hasUnsavedChanges, activeTab, switchTab }) => {
+export const SideBar: FC<SideBarProps> = ({ hasUnsavedChanges, activeTab, switchTab }) => {
   const getNavigationItemClassList = (tabIndex: number) => {
     const classList = [navigationItemClassName];
 
@@ -67,5 +67,3 @@ export const Navigation: FC<NavigationProps> = ({ hasUnsavedChanges, activeTab, 
     </div>
   );
 };
-
-export default Navigation;

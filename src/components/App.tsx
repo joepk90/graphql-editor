@@ -1,11 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import {
-  TabsContainer,
-  Navigation,
-  FakeEditor,
-  GraphiQLEditor,
-  GraphQLVoyager,
-} from 'src/components';
+import { TabsContainer, SideBar, FakeEditor, GraphiQLEditor, GraphQLVoyager } from 'src/components';
 import { getSDL, postSDL } from 'src/api';
 import { GraphQLSchema, Source, buildSchema, GraphQLError } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
@@ -175,7 +169,7 @@ export const App = () => {
   const hasUnsavedChanges = checkForUnsavedChanges();
   return (
     <div className="faker-editor-container">
-      <Navigation
+      <SideBar
         hasUnsavedChanges={hasUnsavedChanges}
         activeTab={activeTab}
         switchTab={setActiveTab}
