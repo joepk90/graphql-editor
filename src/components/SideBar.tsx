@@ -2,6 +2,7 @@ import { FC } from 'react';
 import Logo from 'src/assets/logo.svg';
 import { ConsoleIcon, EditIcon, GithubIcon, VoyagerIcon } from 'src/components/Icons';
 
+const repoURL = 'https://github.com/joepk90/graphql-faker-refactored';
 const navigationItemClassName = 'navigation-item';
 
 type SideBarProps = {
@@ -29,7 +30,7 @@ export const SideBar: FC<SideBarProps> = ({ hasUnsavedChanges, activeTab, switch
     <div className="sidebar">
       <div className="sidebar__top">
         <div className="logo">
-          <a href="https://github.com/graphql-kit/graphql-faker" target="_blank" rel="noreferrer">
+          <a href={repoURL} target="_blank" rel="noreferrer">
             {' '}
             <img src={Logo} />{' '}
           </a>
@@ -59,7 +60,7 @@ export const SideBar: FC<SideBarProps> = ({ hasUnsavedChanges, activeTab, switch
       </div>
 
       <div className={`${navigationItemClassName} github-icon`}>
-        <a href="https://github.com/graphql-kit/graphql-faker" target="_blank" rel="noreferrer">
+        <a href={repoURL} target="_blank" rel="noreferrer">
           {' '}
           <GithubIcon />{' '}
         </a>
