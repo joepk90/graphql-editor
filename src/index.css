@@ -77,7 +77,7 @@ body {
   height: 100vh;
 }
 
-.faker-editor-container > nav {
+.faker-editor-container > .sidebar {
   width: 60px;
   background-color: #59155a;
 }
@@ -97,6 +97,13 @@ body {
   height: 100%;
 }
 
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
 nav > ul {
   margin: 0;
   list-style: none;
@@ -106,7 +113,7 @@ nav > ul {
   color: white;
 }
 
-nav li {
+.navigation-item {
   display: inline-block;
   padding: 15px 14px 15px 10px;
   cursor: pointer;
@@ -114,10 +121,10 @@ nav li {
   text-align: center;
 }
 
-nav li.-active {
+.navigation-item.-active {
   background-color: rgba(255, 255, 255, 0.2);
 }
-nav li.-active::after {
+.navigation-item.-active::after {
   content: '';
   display: block;
   position: absolute;
@@ -127,11 +134,11 @@ nav li.-active::after {
   border-right: 4px solid #e535ab;
 }
 
-nav li:hover {
+.navigation-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-nav li.-unsaved::before {
+.navigation-item.-unsaved::before {
   content: '*';
   color: white;
   font-weight: bold;
@@ -139,31 +146,18 @@ nav li.-unsaved::before {
   right: 10px;
 }
 
-nav li.-disabled,
-nav li.-disabled:hover {
+.navigation-item.-disabled,
+.navigation-item.-disabled:hover {
   cursor: default;
   background: transparent;
 }
 
-nav li.-disabled path,
-nav li.-disabled:hover path {
+.navigation-item-disabled path,
+.navigation-item.-disabled:hover path {
   fill: rgba(255, 255, 255, 0.2);
 }
 
-nav li.-pulldown {
-  margin-top: auto;
-}
-
-nav li.-link {
-  padding: 0;
-}
-
-nav li.-link > a {
-  display: inline-block;
-  padding: 15px 14px 15px 10px;
-}
-
-nav > .logo {
+.sidebar .logo {
   padding: 5px;
 }
 
