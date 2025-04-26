@@ -1,6 +1,6 @@
 PLATFORM=linux/amd64
 DOCKER_REGISTRY=jparkkennaby
-IMAGE_NAME=graphql-editor
+IMAGE_NAME=graphql-faker-editor
 DOCKER_IMAGE=$(DOCKER_REGISTRY)/$(IMAGE_NAME)
 
 dev:
