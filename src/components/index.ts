@@ -5,7 +5,3 @@ export * from './FakeEditor';
 export * from './SideBar';
 export * from './GraphiQLEditor';
 export * from './GraphQLVoyager';
-
-// depricated - to do delete
-// export * from './Explorer';
-// export * from './SchemaEditor';
