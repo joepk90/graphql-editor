@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  GraphQLObjectType,
-  GraphQLSchema,
-  GraphQLString,
-  GraphQLError,
-  validateSchema,
-  printSchema,
-} from 'graphql';
+import { GraphQLSchema, GraphQLError, validateSchema, printSchema } from 'graphql';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers } from '@codemirror/view';
 import { history, defaultKeymap, indentWithTab } from '@codemirror/commands';
@@ -22,23 +15,9 @@ import { oneDarkHighlightStyle, oneDark } from '@codemirror/theme-one-dark';
 import { graphql } from 'cm6-graphql';
 import { buildSchemaWithFakeDefs } from 'src/components/App';
 
-// import { abcdef } from '@uiw/codemirror-themes';
-// import { smoothy } from 'thememirror';
 const height = '92vh';
 
 const keymapCompartment = new Compartment();
-
-export const TestSchema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      search: {
-        type: GraphQLString,
-        resolve: () => 'GraphQL is awesome!',
-      },
-    },
-  }),
-});
 
 const minLinesExtension = EditorView.theme({
   '&': {
@@ -54,7 +33,6 @@ interface GraphQLCodeEditorProps {
   setErrorMessage: (errorMsg: string | null) => void;
 }
 
-// TODO what happens when eitehr the schema of value is updated?
 export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
   schema,
   value,
@@ -84,15 +62,7 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
         lineNumbers(),
         oneDark,
         syntaxHighlighting(oneDarkHighlightStyle),
-        graphql(schema, {
-          onShowInDocs(field, type, parentType) {
-            alert(`Showing in docs.: Field: ${field}, Type: ${type}, ParentType: ${parentType}`);
-          },
-          onFillAllFields(_view, _schema, _query, _cursor, token) {
-            alert(`Filling all fields. Token: ${token}`);
-          },
-        }),
-
+        graphql(schema),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const text = update.state.doc.toString();
@@ -163,8 +133,3 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
     />
   );
 };
-
-// Hot Module Replacement
-// if (module.hot) {
-//   module.hot.accept();
-// }
