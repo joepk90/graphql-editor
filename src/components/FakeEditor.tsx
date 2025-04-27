@@ -4,7 +4,7 @@ import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
 
 type Props = {
   initialSchemaEditorValue: string | undefined;
-  fullSchema: GraphQLSchema;
+  fullSchemaWithFakeDefs: GraphQLSchema;
   hasUnsavedChanges: boolean;
   saveUpdateStatus: string | null;
   handleEditorOnSaveKeyboardShortcut: (text: string) => void;
@@ -17,7 +17,7 @@ type Props = {
 
 export const FakeEditor = ({
   initialSchemaEditorValue,
-  fullSchema,
+  fullSchemaWithFakeDefs,
   setValidationErrors,
   setErrorMessage,
   errorMessage,
@@ -54,7 +54,7 @@ export const FakeEditor = ({
     <div className="fake-editor">
       <GraphQLSchemaEditor
         value={initialSchemaEditorValue}
-        schema={fullSchema}
+        schema={fullSchemaWithFakeDefs}
         setValidationErrors={setValidationErrors}
         setErrorMessage={setErrorMessage}
         handleEditorValueChange={handleEditorValueChange}

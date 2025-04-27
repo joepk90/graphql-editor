@@ -28,16 +28,20 @@ const initialSchema = buildSchema(`
 
 // TODO setup a Provider to handle a lot of this logic...
 export const App = () => {
-  // console.log('TypeMap();', fullSchema.getTypeMap());
   const [activeTab, setActiveTab] = useState<number>(0);
+
+  // original schema is used to rebuild the fullSchemaWithFakeDefs on save
+  const [originalSchema, setOriginalSchema] = useState<string>('');
 
   // the full schema will either be a remote schema extended with the users schema, or it could be
   // the  users schema, and is identical to the remote schema, but will be used
   // by the editor for autocompletion/validation
-  const [fullSchema, setFullSchema] = useState<GraphQLSchema>(initialSchema);
+  // helper: console.log('TypeMap();', fullSchemaWithFakeDefs.getTypeMap());
+  const [fullSchemaWithFakeDefs, setFullSchemaWithFakeDefs] =
+    useState<GraphQLSchema>(initialSchema);
 
   // value saved on the server (stored here in memory for comparisons)
-  const [remoteSchemaValue, setRemoteSchemaValue] = useState<string | undefined>(undefined);
+  const [remoteUserSchemaValue, setRemoteUserSchemaValue] = useState<string | undefined>(undefined);
 
   // the value of the text in the schema editor
   const [schemaEditorValue, setSchemaEditorValue] = useState<string | undefined>(undefined);
@@ -50,7 +54,7 @@ export const App = () => {
   const checkForUnsavedChanges = (schemaEditorValue: string | undefined) => {
     // if the remote schema or full schema have not yet been requested and set,
     // there cannot be any unsaved changes to consider
-    if (remoteSchemaValue === undefined || fullSchema === undefined) {
+    if (remoteUserSchemaValue === undefined || fullSchemaWithFakeDefs === undefined) {
       return false;
     }
 
@@ -61,7 +65,7 @@ export const App = () => {
 
     // if the schema editor value does not match the value of the schema saved on
     // the server, this means there are unsaved changes...
-    return schemaEditorValue !== remoteSchemaValue;
+    return schemaEditorValue !== remoteUserSchemaValue;
   };
 
   // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
@@ -82,7 +86,7 @@ export const App = () => {
 
         const schemaText = await response.json();
 
-        setRemoteSchemaValue(schemaText.userSDL);
+        setRemoteUserSchemaValue(schemaText.userSDL);
 
         // remote SDL (schema) may be undefined, meaning we only build with the user sdl
         const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(
@@ -90,7 +94,8 @@ export const App = () => {
           schemaText.remoteSDL,
         );
 
-        setFullSchema(builtSchemaWithFakeDefs);
+        setOriginalSchema(schemaText.remoteSDL);
+        setFullSchemaWithFakeDefs(builtSchemaWithFakeDefs);
       } catch (error) {
         setErrorMessage('Error fetching schema');
         console.error('Error fetching schema:', error);
@@ -103,9 +108,9 @@ export const App = () => {
   }, []);
 
   const saveSchema = async (newSchemaEditorValue: string) => {
-    // don't allow saving until the fullSchema has not yet loaded,
+    // don't allow saving until the fullSchemaWithFakeDefs has not yet loaded,
     // don't allow saving until there is at least a value from the editor
-    if (!newSchemaEditorValue || !fullSchema) {
+    if (!newSchemaEditorValue || !originalSchema) {
       return;
     }
 
@@ -118,7 +123,8 @@ export const App = () => {
       return;
     }
 
-    const mergedTypeDefs = mergeTypeDefs([newSchemaEditorValue, fullSchema]);
+    const newFullSchemaWithFakeDefs = buildSchemaWithFakeDefs(newSchemaEditorValue, originalSchema);
+    const mergedTypeDefs = mergeTypeDefs([newSchemaEditorValue, newFullSchemaWithFakeDefs]);
 
     try {
       // validation
@@ -142,8 +148,9 @@ export const App = () => {
 
     if (response.ok) {
       setUpdateStatusWithClear('Saved!', 2000);
-      setRemoteSchemaValue(schemaEditorValue);
+      setRemoteUserSchemaValue(schemaEditorValue);
       setHasUnsavedChanges(false);
+      setFullSchemaWithFakeDefs(newFullSchemaWithFakeDefs);
     } else {
       const errorMsg = await response.text();
       setErrorMessage(errorMsg);
@@ -190,8 +197,8 @@ export const App = () => {
           <FakeEditor
             key={1}
             handleEditorValueChange={handleEditorValueChange}
-            fullSchema={fullSchema}
-            initialSchemaEditorValue={remoteSchemaValue}
+            fullSchemaWithFakeDefs={fullSchemaWithFakeDefs}
+            initialSchemaEditorValue={remoteUserSchemaValue}
             setValidationErrors={setValidationErrors}
             setErrorMessage={setErrorMessage}
             errorMessage={getErrorMessage()}
@@ -200,7 +207,7 @@ export const App = () => {
             handleOnSaveButtonClick={handleOnSaveButtonClick}
             handleEditorOnSaveKeyboardShortcut={saveSchema}
           />,
-          <GraphiQLEditor key={2} schema={fullSchema} />,
+          <GraphiQLEditor key={2} schema={fullSchemaWithFakeDefs} />,
           <GraphQLVoyager key={3} />,
         ]}
       />
