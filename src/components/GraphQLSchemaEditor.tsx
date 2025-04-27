@@ -45,17 +45,36 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
   const editorContainer = useRef(null);
   const latestDoc = useRef('');
 
-  useEffect(() => {
-    const listener = EditorView.updateListener.of((update) => {
-      if (update.docChanged) {
-        handleEditorValueChange(update.state.doc.toString());
-      }
-    });
+  const updateListener = EditorView.updateListener.of((update) => {
+    if (update.docChanged) {
+      const text = update.state.doc.toString();
 
+      latestDoc.current = text; // Always sync latest text
+      handleEditorValueChange(text); // Update parent
+
+      // Validation
+      try {
+        const fakeSchema = buildSchemaWithFakeDefs(text, printSchema(schema));
+        const errors = validateSchema(fakeSchema);
+        if (errors.length) {
+          setValidationErrors(Array.from(errors));
+          console.error('Validation Errors:', errors);
+        } else {
+          setErrorMessage(null);
+          console.log('No validation errors');
+        }
+      } catch (err) {
+        setErrorMessage(String(err));
+        console.error('Parse Error:', err);
+      }
+    }
+  });
+
+  useEffect(() => {
     const state = EditorState.create({
       doc: value,
       extensions: [
-        listener,
+        updateListener,
         keymapCompartment.of([]), // placeholder
         minLinesExtension,
         bracketMatching(),
@@ -66,26 +85,6 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
         oneDark,
         syntaxHighlighting(oneDarkHighlightStyle),
         graphql(schema),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            const text = update.state.doc.toString();
-            try {
-              const fakeSchema = buildSchemaWithFakeDefs(text, printSchema(schema));
-              const errors = validateSchema(fakeSchema);
-              if (errors.length) {
-                setValidationErrors(Array.from(errors));
-                console.error('Validation Errors:', errors);
-              } else {
-                setErrorMessage(null);
-                console.log('No validation errors');
-              }
-            } catch (err) {
-              setErrorMessage(String(err));
-              console.error('Parse Error:', err);
-            }
-          }
-        }),
-
         keymap.of([
           ...defaultKeymap, // This includes the Enter keymap and other default commands
         ]),
