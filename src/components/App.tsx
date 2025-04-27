@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { TabsContainer, SideBar, FakeEditor, GraphiQLEditor, GraphQLVoyager } from 'src/components';
 import { getSDL, postSDL } from 'src/api';
 import { GraphQLSchema, Source, buildSchema, GraphQLError } from 'graphql';
@@ -44,31 +44,32 @@ export const App = () => {
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   const [saveUpdateStatus, setSaveUpdateStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+
+  const checkForUnsavedChanges = (schemaEditorValue: string | undefined) => {
+    // if the remote schema or full schema have not yet been requested and set,
+    // there cannot be any unsaved changes to consider
+    if (remoteSchemaValue === undefined || fullSchema === undefined) {
+      return false;
+    }
+
+    // if the remote schema or full schema have not yet been requested and set,
+    if (schemaEditorValue === undefined) {
+      return false;
+    }
+
+    // if the schema editor value does not match the value of the schema saved on
+    // the server, this means there are unsaved changes...
+    return schemaEditorValue !== remoteSchemaValue;
+  };
 
   // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
   const handleEditorValueChange = (value: string) => {
     setSchemaEditorValue(value);
+
+    const hasUnsavedChanges = checkForUnsavedChanges(value);
+    setHasUnsavedChanges(hasUnsavedChanges);
   };
-
-  const checkForUnsavedChanges = useMemo(
-    () => () => {
-      // if the remote schema or full schema have not yet been requested and set,
-      // there cannot be any unsaved changes to consider
-      if (remoteSchemaValue === undefined || fullSchema === undefined) {
-        return false;
-      }
-
-      // if the remote schema or full schema have not yet been requested and set,
-      if (schemaEditorValue === undefined) {
-        return false;
-      }
-
-      // if the schema editor value does not match the value of the schema saved on
-      // the server, this means there are unsaved changes...
-      return schemaEditorValue !== remoteSchemaValue;
-    },
-    [schemaEditorValue, remoteSchemaValue],
-  );
 
   useEffect(() => {
     (async () => {
@@ -96,14 +97,14 @@ export const App = () => {
     })();
 
     window.onbeforeunload = () => {
-      if (hasUnsavedChanges) return 'You have unsaved changes. Exit?';
+      if (checkForUnsavedChanges(schemaEditorValue)) return 'You have unsaved changes. Exit?';
     };
   }, []);
 
-  const saveSchema = async () => {
+  const saveSchema = async (newSchemaEditorValue: string) => {
     // don't allow saving until the fullSchema has not yet loaded,
     // don't allow saving until there is at least a value from the editor
-    if (!schemaEditorValue || !fullSchema) {
+    if (!newSchemaEditorValue || !fullSchema) {
       return;
     }
 
@@ -112,11 +113,11 @@ export const App = () => {
       return;
     }
 
-    if (!hasUnsavedChanges) {
+    if (!checkForUnsavedChanges(newSchemaEditorValue)) {
       return;
     }
 
-    const mergedTypeDefs = mergeTypeDefs([schemaEditorValue, fullSchema]);
+    const mergedTypeDefs = mergeTypeDefs([newSchemaEditorValue, fullSchema]);
 
     try {
       // validation
@@ -132,7 +133,7 @@ export const App = () => {
     let response: Response;
 
     try {
-      response = await postSDL(schemaEditorValue);
+      response = await postSDL(newSchemaEditorValue);
     } catch (error) {
       console.error('Error posting schema:', error);
       return;
@@ -141,6 +142,7 @@ export const App = () => {
     if (response.ok) {
       setUpdateStatusWithClear('Saved!', 2000);
       setRemoteSchemaValue(schemaEditorValue);
+      setHasUnsavedChanges(false);
     } else {
       const errorMsg = await response.text();
       setErrorMessage(errorMsg);
@@ -166,7 +168,14 @@ export const App = () => {
     }, delay);
   };
 
-  const hasUnsavedChanges = checkForUnsavedChanges();
+  const handleOnSaveButtonClick = () => {
+    if (!schemaEditorValue) {
+      return;
+    }
+
+    saveSchema(schemaEditorValue);
+  };
+
   return (
     <div className="faker-editor-container">
       <SideBar
@@ -182,12 +191,13 @@ export const App = () => {
             handleEditorValueChange={handleEditorValueChange}
             fullSchema={fullSchema}
             initialSchemaEditorValue={remoteSchemaValue}
-            saveSchema={saveSchema}
             setValidationErrors={setValidationErrors}
             setErrorMessage={setErrorMessage}
             errorMessage={getErrorMessage()}
             hasUnsavedChanges={hasUnsavedChanges}
             saveUpdateStatus={saveUpdateStatus}
+            handleOnSaveButtonClick={handleOnSaveButtonClick}
+            handleEditorOnSaveKeyboardShortcut={saveSchema}
           />,
           <GraphiQLEditor key={2} schema={fullSchema} />,
           <GraphQLVoyager key={3} />,

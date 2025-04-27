@@ -7,7 +7,8 @@ type Props = {
   fullSchema: GraphQLSchema;
   hasUnsavedChanges: boolean;
   saveUpdateStatus: string | null;
-  saveSchema: () => void;
+  handleEditorOnSaveKeyboardShortcut: (text: string) => void;
+  handleOnSaveButtonClick: () => void;
   setErrorMessage: (errorMsg: string | null) => void;
   errorMessage: string | undefined;
   setValidationErrors: (errors: GraphQLError[]) => void;
@@ -17,13 +18,14 @@ type Props = {
 export const FakeEditor = ({
   initialSchemaEditorValue,
   fullSchema,
-  saveSchema,
   setValidationErrors,
   setErrorMessage,
   errorMessage,
   hasUnsavedChanges,
   saveUpdateStatus,
   handleEditorValueChange,
+  handleOnSaveButtonClick,
+  handleEditorOnSaveKeyboardShortcut,
 }: Props) => {
   const isButtonDisabled = () => {
     // if there is an error message, the button should not be clickable
@@ -56,10 +58,11 @@ export const FakeEditor = ({
         setValidationErrors={setValidationErrors}
         setErrorMessage={setErrorMessage}
         handleEditorValueChange={handleEditorValueChange}
+        handleEditorOnSaveKeyboardShortcut={handleEditorOnSaveKeyboardShortcut}
       />
 
       <div className="action-panel">
-        <a className={`material-button ${isDisabledClass}`} onClick={saveSchema}>
+        <a className={`material-button ${isDisabledClass}`} onClick={handleOnSaveButtonClick}>
           <span> Save </span>
         </a>
         <div className="status-bar">

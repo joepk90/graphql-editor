@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { GraphQLSchema, GraphQLError, validateSchema, printSchema } from 'graphql';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers } from '@codemirror/view';
-import { history, defaultKeymap, indentWithTab } from '@codemirror/commands';
+import { history, historyKeymap, defaultKeymap, indentWithTab } from '@codemirror/commands';
 import {
   autocompletion,
   closeBrackets,
@@ -29,6 +29,7 @@ interface GraphQLCodeEditorProps {
   value: string | undefined;
   schema: GraphQLSchema;
   handleEditorValueChange: (view: string) => void;
+  handleEditorOnSaveKeyboardShortcut: (text: string) => void;
   setValidationErrors: (errors: GraphQLError[]) => void;
   setErrorMessage: (errorMsg: string | null) => void;
 }
@@ -39,8 +40,10 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
   setValidationErrors,
   setErrorMessage,
   handleEditorValueChange,
+  handleEditorOnSaveKeyboardShortcut,
 }) => {
   const editorContainer = useRef(null);
+  const latestDoc = useRef('');
 
   useEffect(() => {
     const listener = EditorView.updateListener.of((update) => {
@@ -109,8 +112,17 @@ export const GraphQLSchemaEditor: React.FC<GraphQLCodeEditorProps> = ({
               return indentWithTab?.run?.(view) ?? false;
             },
           },
-          ...defaultKeymap,
+          {
+            key: 'Mod-s',
+            preventDefault: true,
+            run: (_view) => {
+              handleEditorOnSaveKeyboardShortcut(latestDoc.current);
+              return true;
+            },
+          },
+          ...historyKeymap, // Add undo/redo keybindings
           ...completionKeymap,
+          ...defaultKeymap,
         ]),
       ),
     });
