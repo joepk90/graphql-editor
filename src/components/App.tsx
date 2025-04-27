@@ -107,6 +107,8 @@ export const App = () => {
     };
   }, []);
 
+  // newSchemaEditorValue can either be the schemaEditorValue,
+  // or it can be the value passed to us via the saveSchema function passed to the editor
   const saveSchema = async (newSchemaEditorValue: string) => {
     // don't allow saving until the fullSchemaWithFakeDefs has not yet loaded,
     // don't allow saving until there is at least a value from the editor
@@ -148,7 +150,7 @@ export const App = () => {
 
     if (response.ok) {
       setUpdateStatusWithClear('Saved!', 2000);
-      setRemoteUserSchemaValue(schemaEditorValue);
+      setRemoteUserSchemaValue(newSchemaEditorValue);
       setHasUnsavedChanges(false);
       setFullSchemaWithFakeDefs(newFullSchemaWithFakeDefs);
     } else {
