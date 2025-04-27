@@ -60,4 +60,3 @@ make docker-run-server
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
 | `VITE_API_URL`                | URL of the Server                                                          |
-| `AUTH_TOKEN`                  | Auth Token used to pass to the server, required for auth purposes for protected graphql endponts  |
