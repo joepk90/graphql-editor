@@ -59,4 +59,4 @@ make docker-run-server
 ## Options
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
-| `VITE_API_URL`                | URL of the Server                                                          |
+| `VITE_API_URL`                | URL of the Server [default: `http://localhost:9092`]                       |
