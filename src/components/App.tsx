@@ -26,6 +26,7 @@ const initialSchema = buildSchema(`
   }
 `);
 
+// TODO setup a Provider to handle a lot of this logic...
 export const App = () => {
   // console.log('TypeMap();', fullSchema.getTypeMap());
   const [activeTab, setActiveTab] = useState<number>(0);
