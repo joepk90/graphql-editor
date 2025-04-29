@@ -11,8 +11,8 @@ export const FakeEditor = () => {
     errorMessage,
     hasUnsavedChanges,
     saveUpdateStatus,
-    handleOnSaveButtonClick,
     saveSchema,
+    schemaEditorValue,
   } = useSchema();
 
   const isButtonDisabled = () => {
@@ -34,6 +34,10 @@ export const FakeEditor = () => {
 
     // if all the other conditions fail, enable the button
     return false;
+  };
+
+  const handleOnSaveButtonClick = () => {
+    if (schemaEditorValue) saveSchema(schemaEditorValue);
   };
 
   const isDisabledClass = isButtonDisabled() ? '-disabled' : '';

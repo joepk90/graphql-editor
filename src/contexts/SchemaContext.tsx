@@ -1,22 +1,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getSDL, postSDL } from 'src/api';
-import { buildWithFakeDefinitions } from 'src/graphql';
-import { GraphQLSchema, Source, buildSchema, GraphQLError } from 'graphql';
-import { mergeTypeDefs } from '@graphql-tools/merge';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-
-const initialSchema = buildSchema(`
-    type Query {
-      _empty: String
-    }
-  `);
-
-// build the schema with just the user schema, or both the user schema and remote schema
-export const buildSchemaWithFakeDefs = (userSDL: string, remoteSDL?: string) => {
-  return remoteSDL
-    ? buildWithFakeDefinitions(new Source(remoteSDL), new Source(userSDL))
-    : buildWithFakeDefinitions(new Source(userSDL));
-};
+import { getSDL } from 'src/api';
+import { GraphQLSchema, GraphQLError } from 'graphql';
+import { useSaveSchema } from 'src/hooks';
+import {
+  getErrorMessage,
+  checkForUnsavedChanges,
+  initialSchema,
+  buildSchemaWithFakeDefs,
+} from 'src/utils';
 
 interface SchemaContextProps {
   originalSchema: string;
@@ -28,7 +19,6 @@ interface SchemaContextProps {
   hasUnsavedChanges: boolean;
   saveUpdateStatus: string | null;
   handleEditorValueChange: (value: string) => void;
-  handleOnSaveButtonClick: () => void;
   saveSchema: (value: string) => Promise<void>;
   setValidationErrors: (errors: readonly GraphQLError[]) => void;
   setErrorMessage: (msg: string | null) => void;
@@ -68,105 +58,22 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const checkForUnsavedChanges = (schemaEditorValue: string | undefined) => {
-    // if the remote schema or full schema have not yet been requested and set,
-    // there cannot be any unsaved changes to consider
-    if (remoteUserSchemaValue === undefined || fullSchemaWithFakeDefs === undefined) {
-      return false;
-    }
-
-    // if the remote schema or full schema have not yet been requested and set,
-    if (schemaEditorValue === undefined) {
-      return false;
-    }
-
-    // if the schema editor value does not match the value of the schema saved on
-    // the server, this means there are unsaved changes...
-    return schemaEditorValue !== remoteUserSchemaValue;
-  };
+  const { saveSchema } = useSaveSchema({
+    originalSchema,
+    remoteUserSchemaValue,
+    setRemoteUserSchemaValue,
+    setFullSchemaWithFakeDefs,
+    setHasUnsavedChanges,
+    setSaveUpdateStatus,
+    setErrorMessage,
+  });
 
   // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
-  const handleEditorValueChange = (value: string) => {
-    setSchemaEditorValue(value);
+  const handleEditorValueChange = (newSchemaEditorValue: string) => {
+    setSchemaEditorValue(newSchemaEditorValue);
 
-    const hasUnsavedChanges = checkForUnsavedChanges(value);
+    const hasUnsavedChanges = checkForUnsavedChanges(newSchemaEditorValue, remoteUserSchemaValue);
     setHasUnsavedChanges(hasUnsavedChanges);
-  };
-
-  const getErrorMessage = () => {
-    if (errorMessage) {
-      return errorMessage;
-    }
-
-    if (validationErrors && validationErrors.length > 0) {
-      return Array.from(validationErrors)[0].toString();
-    }
-
-    return null;
-  };
-
-  const setUpdateStatusWithClear = (status: string, delay: number) => {
-    setSaveUpdateStatus(status);
-    if (delay) {
-      setTimeout(() => setSaveUpdateStatus(null), delay);
-    }
-  };
-
-  // newSchemaEditorValue can either be the schemaEditorValue,
-  // or it can be the value passed to us via the saveSchema function passed to the editor
-  const saveSchema = async (newSchemaEditorValue: string) => {
-    // don't allow saving until the fullSchemaWithFakeDefs has not yet loaded,
-    // don't allow saving until there is at least a value from the editor
-    if (!newSchemaEditorValue || !originalSchema) {
-      return;
-    }
-
-    // don't allow saving if an error is set
-    if (getErrorMessage()) {
-      return;
-    }
-
-    if (!checkForUnsavedChanges(newSchemaEditorValue)) {
-      return;
-    }
-
-    const newFullSchemaWithFakeDefs = buildSchemaWithFakeDefs(newSchemaEditorValue, originalSchema);
-    const mergedTypeDefs = mergeTypeDefs([newSchemaEditorValue, newFullSchemaWithFakeDefs]);
-
-    try {
-      // validation
-      makeExecutableSchema({
-        typeDefs: mergedTypeDefs,
-      });
-    } catch (error) {
-      console.error('Error building schema:', error);
-      setErrorMessage('Error building schema');
-      return;
-    }
-
-    let response: Response;
-
-    try {
-      response = await postSDL(newSchemaEditorValue);
-    } catch (error) {
-      console.error('Error posting schema:', error);
-      return;
-    }
-
-    if (response.ok) {
-      setUpdateStatusWithClear('Saved!', 2000);
-      setRemoteUserSchemaValue(newSchemaEditorValue);
-      setHasUnsavedChanges(false);
-      setFullSchemaWithFakeDefs(newFullSchemaWithFakeDefs);
-    } else {
-      const errorMsg = await response.text();
-      setErrorMessage(errorMsg);
-      return;
-    }
-  };
-
-  const handleOnSaveButtonClick = () => {
-    if (schemaEditorValue) saveSchema(schemaEditorValue);
   };
 
   useEffect(() => {
@@ -196,7 +103,8 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
     })();
 
     window.onbeforeunload = () => {
-      if (checkForUnsavedChanges(schemaEditorValue)) return 'You have unsaved changes. Exit?';
+      if (checkForUnsavedChanges(schemaEditorValue, remoteUserSchemaValue))
+        return 'You have unsaved changes. Exit?';
     };
   }, []);
 
@@ -208,11 +116,10 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
         remoteUserSchemaValue,
         schemaEditorValue,
         validationErrors,
-        errorMessage: getErrorMessage(),
+        errorMessage: getErrorMessage(errorMessage, validationErrors),
         hasUnsavedChanges,
         saveUpdateStatus,
         handleEditorValueChange,
-        handleOnSaveButtonClick,
         saveSchema,
         setValidationErrors,
         setErrorMessage,
