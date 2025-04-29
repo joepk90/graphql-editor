@@ -1,11 +1,6 @@
-import { api } from 'src/api/api';
 import { voyagerIntrospectionQuery } from 'graphql-voyager';
-
-export const graphQLEndpoint = 'graphql';
-const sdlEndpoint = 'user-sdl';
-
-const plainTextHeader = { 'Content-Type': 'text/plain' };
-const jsonHeader = { 'Content-Type': 'application/json' };
+import { api, graphQLEndpoint } from 'src/api';
+import { jsonHeader } from 'src/utils';
 
 // export const graphQLFetcher = async (graphQLParams: GraphQLArgs) => {
 //   console.log('graphQLParams: ', graphQLParams);
@@ -21,24 +16,6 @@ const jsonHeader = { 'Content-Type': 'application/json' };
 //   // return await parse(data);
 //   // return new GraphQLSchema({ query: null });
 // };
-
-export type SDLResponse = {
-  userSDL: string;
-  remoteSDL?: string;
-};
-
-export const getSDL = async (): Promise<SDLResponse> => {
-  const response = await api.get({ path: sdlEndpoint });
-  return response.json();
-};
-
-export const postSDL = async (sdl: string) => {
-  return await api.post({
-    path: sdlEndpoint,
-    body: sdl,
-    headers: plainTextHeader,
-  });
-};
 
 export const voyagerIntrospectionQueryRequest = async () => {
   const response = await api.post({

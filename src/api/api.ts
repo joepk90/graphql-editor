@@ -1,7 +1,5 @@
-import { NotFoundError } from './apiUtils';
-import { getApiUrl } from 'src/utils';
-
-const JSONHeader = { 'Content-Type': 'application/json' };
+import { NotFoundError } from 'src/utils';
+import { getApiUrl, jsonHeader } from 'src/utils';
 
 export const AppConfig = {
   ApiUrl: getApiUrl(),
@@ -62,7 +60,7 @@ const createRequestOptions = <T>(options: RequestOptions<T>) => {
 
   if (args && 'body' in args) {
     requestOptions.body = JSON.stringify(args.body);
-    requestOptions.headers = JSONHeader;
+    requestOptions.headers = jsonHeader;
   }
 
   return requestOptions;
