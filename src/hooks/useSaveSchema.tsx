@@ -1,8 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useSchema } from 'src/contexts/SchemaContext';
-import { postSDL } from 'src/api';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { buildSchemaWithFakeDefs, checkForUnsavedChanges } from 'src/utils';
+import { usePostSchema } from 'src/hooks';
 
 export const useSaveSchema = () => {
   const {
@@ -14,6 +15,8 @@ export const useSaveSchema = () => {
     setSaveUpdateStatus,
     setErrorMessage,
   } = useSchema();
+  const queryClient = useQueryClient();
+  const { mutate: postSchema } = usePostSchema();
 
   const setUpdateStatusWithClear = (status: string, delay: number) => {
     setSaveUpdateStatus(status);
@@ -43,24 +46,17 @@ export const useSaveSchema = () => {
       return;
     }
 
-    let response: Response;
-
-    try {
-      response = await postSDL(newSchemaEditorValue);
-    } catch (error) {
-      console.error('Error posting schema:', error);
-      return;
-    }
-
-    if (response.ok) {
-      setUpdateStatusWithClear('Saved!', 2000);
-      setRemoteUserSchemaValue(newSchemaEditorValue);
-      setHasUnsavedChanges(false);
-      setFullSchemaWithFakeDefs(newFullSchemaWithFakeDefs);
-    } else {
-      const errorMsg = await response.text();
-      setErrorMessage(errorMsg);
-      return;
-    }
+    postSchema(newSchemaEditorValue, {
+      onSuccess: () => {
+        setRemoteUserSchemaValue(newSchemaEditorValue);
+        setFullSchemaWithFakeDefs(newFullSchemaWithFakeDefs);
+        setHasUnsavedChanges(false);
+        setUpdateStatusWithClear('Saved!', 2000);
+        queryClient.invalidateQueries({ queryKey: ['schema'] });
+      },
+      onError: (err: Error) => {
+        setErrorMessage(err.message || 'Failed to save schema');
+      },
+    });
   };
 };
