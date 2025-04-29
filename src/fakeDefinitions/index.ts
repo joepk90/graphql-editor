@@ -1,2 +1,2 @@
-export * from './schemaUtils';
 export * from './fakeDefinitions';
+export * from './schemaUtils';

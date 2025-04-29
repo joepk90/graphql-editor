@@ -1,5 +1,5 @@
 import { Source, buildSchema, GraphQLError } from 'graphql';
-import { buildWithFakeDefinitions } from 'src/graphql';
+import { buildWithFakeDefinitions } from 'src/fakeDefinitions';
 
 export const initialSchema = buildSchema(`
     type Query {

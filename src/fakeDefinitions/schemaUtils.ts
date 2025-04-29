@@ -18,7 +18,7 @@ import {
 // FIXME
 import { validateSDL } from 'graphql/validation/validate';
 
-import { fakeDefinitionAST } from 'src/graphql/fakeDefinitions';
+import { fakeDefinitionAST } from 'src/fakeDefinitions';
 
 /**
  * DO NOT CONSIDER/TREAT THIS FILE AT A SOURCE OF TRUTH - IT HAS BEEN COPIED FROM THE BACKEND SERVICE
