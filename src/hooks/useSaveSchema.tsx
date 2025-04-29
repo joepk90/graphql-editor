@@ -1,26 +1,20 @@
+import { useSchema } from 'src/contexts/SchemaContext';
 import { postSDL } from 'src/api';
-import { GraphQLSchema } from 'graphql';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { buildSchemaWithFakeDefs, checkForUnsavedChanges } from 'src/utils';
 
-export const useSaveSchema = ({
-  originalSchema,
-  remoteUserSchemaValue,
-  setRemoteUserSchemaValue,
-  setFullSchemaWithFakeDefs,
-  setHasUnsavedChanges,
-  setSaveUpdateStatus,
-  setErrorMessage,
-}: {
-  originalSchema: string;
-  remoteUserSchemaValue: string | undefined;
-  setRemoteUserSchemaValue: (s: string) => void;
-  setFullSchemaWithFakeDefs: (s: GraphQLSchema) => void;
-  setHasUnsavedChanges: (b: boolean) => void;
-  setSaveUpdateStatus: (s: string | null) => void;
-  setErrorMessage: (m: string | null) => void;
-}) => {
+export const useSaveSchema = () => {
+  const {
+    originalSchema,
+    remoteUserSchemaValue,
+    setRemoteUserSchemaValue,
+    setFullSchemaWithFakeDefs,
+    setHasUnsavedChanges,
+    setSaveUpdateStatus,
+    setErrorMessage,
+  } = useSchema();
+
   const setUpdateStatusWithClear = (status: string, delay: number) => {
     setSaveUpdateStatus(status);
     if (delay) {
@@ -30,10 +24,9 @@ export const useSaveSchema = ({
 
   // newSchemaEditorValue can either be the schemaEditorValue,
   // or it can be the value passed to us via the saveSchema function passed to the editor
-  const saveSchema = async (newSchemaEditorValue: string) => {
+  return async (newSchemaEditorValue: string) => {
     //   // don't allow saving until the fullSchemaWithFakeDefs has not yet loaded,
     //   // don't allow saving until there is at least a value from the editor
-
     if (!newSchemaEditorValue || !originalSchema) return;
 
     const hasUnsavedChanges = checkForUnsavedChanges(newSchemaEditorValue, remoteUserSchemaValue);
@@ -70,6 +63,4 @@ export const useSaveSchema = ({
       return;
     }
   };
-
-  return { saveSchema };
 };

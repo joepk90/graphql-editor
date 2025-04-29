@@ -1,5 +1,6 @@
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
 import { useSchema } from 'src/contexts/SchemaContext';
+import { useSaveSchema } from 'src/hooks';
 
 export const FakeEditor = () => {
   const {
@@ -11,9 +12,9 @@ export const FakeEditor = () => {
     errorMessage,
     hasUnsavedChanges,
     saveUpdateStatus,
-    saveSchema,
     schemaEditorValue,
   } = useSchema();
+  const saveSchema = useSaveSchema();
 
   const isButtonDisabled = () => {
     // if there is an error message, the button should not be clickable

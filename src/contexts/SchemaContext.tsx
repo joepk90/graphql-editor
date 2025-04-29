@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { getSDL } from 'src/api';
 import { GraphQLSchema, GraphQLError } from 'graphql';
-import { useSaveSchema } from 'src/hooks';
 import {
   getErrorMessage,
   checkForUnsavedChanges,
@@ -19,9 +18,12 @@ interface SchemaContextProps {
   hasUnsavedChanges: boolean;
   saveUpdateStatus: string | null;
   handleEditorValueChange: (value: string) => void;
-  saveSchema: (value: string) => Promise<void>;
   setValidationErrors: (errors: readonly GraphQLError[]) => void;
   setErrorMessage: (msg: string | null) => void;
+  setRemoteUserSchemaValue: (value: string) => void;
+  setFullSchemaWithFakeDefs: (scehma: GraphQLSchema) => void;
+  setHasUnsavedChanges: (value: boolean) => void;
+  setSaveUpdateStatus: (value: string | null) => void;
 }
 
 const SchemaContext = createContext<SchemaContextProps | undefined>(undefined);
@@ -56,17 +58,7 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
   const [validationErrors, setValidationErrors] = useState<readonly GraphQLError[]>([]);
   const [saveUpdateStatus, setSaveUpdateStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  const { saveSchema } = useSaveSchema({
-    originalSchema,
-    remoteUserSchemaValue,
-    setRemoteUserSchemaValue,
-    setFullSchemaWithFakeDefs,
-    setHasUnsavedChanges,
-    setSaveUpdateStatus,
-    setErrorMessage,
-  });
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
   const handleEditorValueChange = (newSchemaEditorValue: string) => {
@@ -120,9 +112,12 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
         hasUnsavedChanges,
         saveUpdateStatus,
         handleEditorValueChange,
-        saveSchema,
         setValidationErrors,
         setErrorMessage,
+        setRemoteUserSchemaValue,
+        setFullSchemaWithFakeDefs,
+        setHasUnsavedChanges,
+        setSaveUpdateStatus,
       }}
     >
       {children}
