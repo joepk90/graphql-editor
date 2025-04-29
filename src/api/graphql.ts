@@ -22,8 +22,14 @@ const jsonHeader = { 'Content-Type': 'application/json' };
 //   // return new GraphQLSchema({ query: null });
 // };
 
-export const getSDL = async () => {
-  return await api.get({ path: sdlEndpoint });
+export type SDLResponse = {
+  userSDL: string;
+  remoteSDL?: string;
+};
+
+export const getSDL = async (): Promise<SDLResponse> => {
+  const response = await api.get({ path: sdlEndpoint });
+  return response.json();
 };
 
 export const postSDL = async (sdl: string) => {

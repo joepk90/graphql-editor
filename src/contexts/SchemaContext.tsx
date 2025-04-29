@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getSDL } from 'src/api';
+
+import { useGetSchema } from 'src/hooks';
 import { GraphQLSchema, GraphQLError } from 'graphql';
 import {
   getErrorMessage,
@@ -60,6 +61,8 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
+  const { data, error, isLoading } = useGetSchema();
+
   // this function is triggered by the schema editor and keeps schemaEditorValue state in sync
   const handleEditorValueChange = (newSchemaEditorValue: string) => {
     setSchemaEditorValue(newSchemaEditorValue);
@@ -69,36 +72,32 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await getSDL();
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+    if (error) {
+      console.error('Error fetching schema:', error);
+      setErrorMessage('Error fetching schema');
+      return;
+    }
 
-        const schemaText = await response.json();
+    if (!data) return;
 
-        setRemoteUserSchemaValue(schemaText.userSDL);
+    const { userSDL, remoteSDL } = data;
 
-        // remote SDL (schema) may be undefined, meaning we only build with the user sdl
-        const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(
-          schemaText.userSDL,
-          schemaText.remoteSDL,
-        );
+    if (!userSDL || !remoteSDL) return;
 
-        setOriginalSchema(schemaText.remoteSDL);
-        setFullSchemaWithFakeDefs(builtSchemaWithFakeDefs);
-      } catch (error) {
-        setErrorMessage('Error fetching schema');
-        console.error('Error fetching schema:', error);
-      }
-    })();
+    setRemoteUserSchemaValue(userSDL);
 
+    const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(userSDL, remoteSDL);
+
+    setOriginalSchema(remoteSDL);
+    setFullSchemaWithFakeDefs(builtSchemaWithFakeDefs);
+  }, [data, isLoading]);
+
+  useEffect(() => {
     window.onbeforeunload = () => {
       if (checkForUnsavedChanges(schemaEditorValue, remoteUserSchemaValue))
         return 'You have unsaved changes. Exit?';
     };
-  }, []);
+  }, [schemaEditorValue, remoteUserSchemaValue]);
 
   return (
     <SchemaContext.Provider
