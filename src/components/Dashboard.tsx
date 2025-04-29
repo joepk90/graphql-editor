@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useSchema } from 'src/contexts';
 import { TabsContainer, SideBar, FakeEditor, GraphiQLEditor, GraphQLVoyager } from 'src/components';
 
-export const App = () => {
+export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
 
   const { hasUnsavedChanges } = useSchema();

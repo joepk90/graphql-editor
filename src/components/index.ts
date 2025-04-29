@@ -1,4 +1,4 @@
-export * from './App';
+export * from './Dashboard';
 export * from './TabsContainer';
 export * from './Icons';
 export * from './FakeEditor';
