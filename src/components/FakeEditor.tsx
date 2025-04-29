@@ -1,32 +1,20 @@
-import { GraphQLSchema, GraphQLError } from 'graphql';
-
 import { GraphQLSchemaEditor } from 'src/components/GraphQLSchemaEditor';
+import { useSchema } from 'src/contexts/SchemaContext';
 
-type Props = {
-  initialSchemaEditorValue: string | undefined;
-  fullSchemaWithFakeDefs: GraphQLSchema;
-  hasUnsavedChanges: boolean;
-  saveUpdateStatus: string | null;
-  handleEditorOnSaveKeyboardShortcut: (text: string) => void;
-  handleOnSaveButtonClick: () => void;
-  setErrorMessage: (errorMsg: string | null) => void;
-  errorMessage: string | undefined;
-  setValidationErrors: (errors: GraphQLError[]) => void;
-  handleEditorValueChange: (view: string) => void;
-};
+export const FakeEditor = () => {
+  const {
+    fullSchemaWithFakeDefs,
+    remoteUserSchemaValue,
+    handleEditorValueChange,
+    setValidationErrors,
+    setErrorMessage,
+    errorMessage,
+    hasUnsavedChanges,
+    saveUpdateStatus,
+    handleOnSaveButtonClick,
+    saveSchema,
+  } = useSchema();
 
-export const FakeEditor = ({
-  initialSchemaEditorValue,
-  fullSchemaWithFakeDefs,
-  setValidationErrors,
-  setErrorMessage,
-  errorMessage,
-  hasUnsavedChanges,
-  saveUpdateStatus,
-  handleEditorValueChange,
-  handleOnSaveButtonClick,
-  handleEditorOnSaveKeyboardShortcut,
-}: Props) => {
   const isButtonDisabled = () => {
     // if there is an error message, the button should not be clickable
     if (errorMessage) {
@@ -53,12 +41,12 @@ export const FakeEditor = ({
   return (
     <div className="fake-editor">
       <GraphQLSchemaEditor
-        value={initialSchemaEditorValue}
+        value={remoteUserSchemaValue}
         schema={fullSchemaWithFakeDefs}
         setValidationErrors={setValidationErrors}
         setErrorMessage={setErrorMessage}
         handleEditorValueChange={handleEditorValueChange}
-        handleEditorOnSaveKeyboardShortcut={handleEditorOnSaveKeyboardShortcut}
+        handleEditorOnSaveKeyboardShortcut={saveSchema}
       />
 
       <div className="action-panel">

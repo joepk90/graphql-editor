@@ -13,7 +13,7 @@ import {
 import { bracketMatching, syntaxHighlighting } from '@codemirror/language';
 import { oneDarkHighlightStyle, oneDark } from '@codemirror/theme-one-dark';
 import { graphql } from 'cm6-graphql';
-import { buildSchemaWithFakeDefs } from 'src/components/App';
+import { buildSchemaWithFakeDefs } from 'src/contexts/SchemaContext';
 
 const height = '92vh';
 
