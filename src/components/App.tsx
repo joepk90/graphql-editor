@@ -1,10 +1,15 @@
-import { Dashboard } from 'src/components/Dashboard.tsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SchemaProvider } from 'src/contexts/SchemaContext';
+import { Dashboard } from 'src/components/Dashboard.tsx';
+
+const queryClient = new QueryClient();
 
 export const App = () => {
   return (
-    <SchemaProvider>
-      <Dashboard />
-    </SchemaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SchemaProvider>
+        <Dashboard />
+      </SchemaProvider>
+    </QueryClientProvider>
   );
 };
