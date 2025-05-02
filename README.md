@@ -60,3 +60,25 @@ make docker-run-server
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
 | `VITE_API_URL`                | URL of the Server [default: `http://localhost:9092`]                       |
+
+
+
+# Runtime Environment Variables
+To enable Dynamic Environment Variables at run time, the following customisations have been applied.
+
+**`.env.js`**
+An `env.js` file has been added to the `public` directory. This is used to load runtime variables on the `window.__RUNTIME_CONFIG__` field.
+
+**`index.html`**
+A script import in the `index.html` file has been added to load the `env.js` file.
+
+**`entrypoint.sh`**
+An `entrypoint` bash script has been setup which replaces variables in the `env.js` file aat run time. The `Dockerfile` now uses this this `entrypoint`  bash script to run the environment variables replacement and tthen start the server.
+
+**`config.ts/config.d.ts`**
+A `config.d.ts` types file has been created for the new `__RUNTIME_CONFIG__` property on the `window` object and the file which loads the environment variables (`config.ts`) now looks for runtime environment variables as well 
+
+
+This appraoch seems slightly hacky/custom, especially considering we are touching the default `index.html` file. Ideally a vite plugin can be used in the future which can handle injecting run time environment variables for us.
+
+- PR: https://github.com/joepk90/graphql-faker-editor/pull/8
