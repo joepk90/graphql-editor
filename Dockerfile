@@ -27,6 +27,11 @@ WORKDIR /app
 # Only copy the built code and necessary files
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+
+# Add startup script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 RUN npm install --production
 RUN npm install -g serve
 
@@ -34,4 +39,4 @@ RUN npm install -g serve
 EXPOSE 8080
 
 # Command to run the built app
-CMD ["serve", "-s", "dist", "-p", "8080"]
+CMD ["/app/entrypoint.sh"]
