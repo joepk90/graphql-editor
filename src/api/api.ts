@@ -38,7 +38,6 @@ export const makeRequest = async (path: string, requestOptions: RequestInit) => 
   const url = `${AppConfig.ApiUrl}/${path}`;
 
   const response = await fetch(url, {
-    credentials: 'include',
     ...requestOptions,
   });
 
