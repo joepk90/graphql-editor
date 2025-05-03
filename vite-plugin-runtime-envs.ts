@@ -28,6 +28,10 @@ export default function runtimeEnvPlugin({
     name: 'vite-plugin-runtime-env',
 
     transformIndexHtml(html) {
+      if (process.env.NODE_ENV !== 'production') {
+        return html; // No-op during dev
+      }
+
       return html.replace('</head>', `  <script src=\"/${outputFile}\"></script>\n</head>`);
     },
 
