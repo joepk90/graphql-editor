@@ -3,6 +3,8 @@ import handler from 'serve-handler';
 import fs from 'fs';
 import path from 'path';
 
+// TODO: could include nodeenv here and make environemnt variables from the .env file work?
+
 // Inject env variables (like before)
 const envFilePath = path.resolve('dist', 'env.runtime.js');
 let envContent = fs.readFileSync(envFilePath, 'utf-8');
