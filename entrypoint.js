@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 // TODO: could include nodeenv here and make environemnt variables from the .env file work?
+// TODO setup in Typescript? THis would require configuring how Docker would run. Alternatively use ts to generate a js version?
 
 const targetDir = process.argv[2] || 'dist'; // default to 'dist' if not provided
 if (process.argv[2]) {
@@ -22,7 +23,9 @@ for (const [key, value] of Object.entries(replacements)) {
   envContent = envContent.split(key).join(value);
 }
 fs.writeFileSync(envFilePath, envContent);
-console.log('✅ Environment variables injected.');
+
+// TODO make environment variable injection conditional - check if any actually exist...
+console.log('✅ Environment variables injected. \n');
 
 const getIgnoredPaths = () => {
     const raw = process.env.IGNORE_PATHS;
