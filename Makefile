@@ -6,6 +6,17 @@ DOCKER_IMAGE=$(DOCKER_REGISTRY)/$(IMAGE_NAME)
 dev:
 	npm run dev
 
+build:
+	npm run build
+
+# serve is a custom npm command:
+# uses an entrypoint to handle run time env vars and path limitations (see entrypoint.js file)
+# must build the project first
+serve:
+	IGNORE_PATHS="" \
+	VITE_API_URL=localhost:9092 \
+	npm run serve
+
 # --platform $(PLATFORM)
 docker-build:
 	docker build \
@@ -16,6 +27,7 @@ docker-run:
 	docker run -it \
 	-p 8080:8080 \
 	-e VITE_API_URL=http://localhost:9092 \
+	-e IGNORE_PATHS="" \
 	${DOCKER_IMAGE}
 
 docker-debug:
