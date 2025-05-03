@@ -60,25 +60,20 @@ make docker-run-server
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
 | `VITE_API_URL`                | URL of the Server [default: `http://localhost:9092`]                       |
+| `IGNORED_PATHS`               | Used only at runtime, after the build. ignore certain paths, allowing others to be served |
 
 
 
-# Runtime Environment Variables
-To enable Dynamic Environment Variables at run time, the following customisations have been applied.
+# Runtime Environment Variables 
 
-**`.env.js`**
-An `env.js` file has been added to the `public` directory. This is used to load runtime variables on the `window.__RUNTIME_CONFIG__` field.
+To setup Run Time Environment Variables, the following customisations have been applied.
 
-**`index.html`**
-A script import in the `index.html` file has been added to load the `env.js` file.
+A Vite plugin (`vite-plugin-runtime-envs.ts`) has been setup to generate a `env.runtime.js` file. This script gets injected into the app by the `index.html` during the build. The  `env.runtime.js` file includes a `window.__RUNTIME_ENV__ ` where run time environment variables can be added. 
 
-**`entrypoint.sh`**
-An `entrypoint` bash script has been setup which replaces variables in the `env.js` file aat run time. The `Dockerfile` now uses this this `entrypoint`  bash script to run the environment variables replacement and tthen start the server.
+An `entrypoint.js` script is then used to serve the applicationn and replaces the specified environment variables
+with environemnt variables defined at run time.
 
-**`config.ts/config.d.ts`**
-A `config.d.ts` types file has been created for the new `__RUNTIME_CONFIG__` property on the `window` object and the file which loads the environment variables (`config.ts`) now looks for runtime environment variables as well 
+See the `docker-run` and `serve` commands to see how the Run Time Environment Variables can be used.
 
-
-This appraoch seems slightly hacky/custom, especially considering we are touching the default `index.html` file. Ideally a vite plugin can be used in the future which can handle injecting run time environment variables for us.
-
-- PR: https://github.com/joepk90/graphql-faker-editor/pull/8
+Note:  
+The `entrypoint` scrit is not setup to use envrionment variables in the `.env` file itself. We could set it up to this, but it would mean installing `nodenv`. This probably won't cause issues but might be problematic when running in the `graphql-faker-refactored` project.
