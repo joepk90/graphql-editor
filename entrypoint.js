@@ -5,8 +5,13 @@ import path from 'path';
 
 // TODO: could include nodeenv here and make environemnt variables from the .env file work?
 
+const targetDir = process.argv[2] || 'dist'; // default to 'dist' if not provided
+if (process.argv[2]) {
+    console.log(`📁 Serving file from the ${process.argv[2]} directory... \n`)
+}
+
 // Inject env variables (like before)
-const envFilePath = path.resolve('dist', 'env.runtime.js');
+const envFilePath = path.resolve(targetDir, 'env.runtime.js');
 let envContent = fs.readFileSync(envFilePath, 'utf-8');
 
 const replacements = {
@@ -50,7 +55,7 @@ const server = http.createServer((request, response) => {
     const ignoredPaths = getIgnoredPaths()
 
     return handler(request, response, {
-        public: 'dist',
+        public: targetDir,
         cleanUrls: true,
         rewrites: [
             ...ignoredPaths,
