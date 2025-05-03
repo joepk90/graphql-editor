@@ -2,8 +2,7 @@ export {};
 
 declare global {
   interface Window {
-    __RUNTIME_CONFIG__: {
-      VITE_API_URL?: string;
+    __RUNTIME_ENV__: {
       [key: string]: any;
     };
   }

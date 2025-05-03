@@ -1,11 +1,7 @@
 #!/bin/sh
 
-# Inject runtime config (to set the VITE_API_URL value at run time)
-cat <<EOF > /app/dist/env.js
-window.__RUNTIME_CONFIG__ = {
-  VITE_API_URL: "${VITE_API_URL}"
-};
-EOF
+# replace VITE_API_URL in env.runtime.js file
+sed -i 's|__VITE_API_URL__|'"$VITE_API_URL"'|g' ./dist/env.runtime.js
 
-# Start the app
-exec serve -s dist -p 8080
+# Start the app (# --no-clipboard flag supress pointless error)
+exec serve -s dist -p 8080 --no-clipboard
