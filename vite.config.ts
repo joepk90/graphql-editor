@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import runtimeEnvPlugin from './vite-plugin-runtime-envs';
 import path from 'path';
 
 // https://vite.dev/config/
@@ -26,6 +27,7 @@ export default defineConfig({
       },
     },
     react(),
+    runtimeEnvPlugin({ publicEnvKeys: ['VITE_API_URL'] }), // env key also set in entrypoint file
   ],
   resolve: {
     alias: {
