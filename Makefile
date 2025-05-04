@@ -12,10 +12,15 @@ build:
 # serve is a custom npm command:
 # uses an entrypoint to handle run time env vars and path limitations (see entrypoint.js file)
 # must build the project first
-serve:
+serve-js:
 	IGNORE_PATHS="" \
 	VITE_API_URL=localhost:9092 \
-	npm run serve
+	npm run serve:js
+
+serve-bash:
+	IGNORE_PATHS="" \
+	VITE_API_URL=localhost:9092 \
+	npm run serve:bash
 
 # --platform $(PLATFORM)
 docker-build:

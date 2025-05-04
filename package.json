@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "serve": "node entrypoint.js"
+    "serve:js": "node entrypoint.js",
+    "serve:bash": "./entrypoint.sh"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.18.6",
