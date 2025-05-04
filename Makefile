@@ -14,12 +14,12 @@ build:
 # must build the project first
 serve-js:
 	IGNORE_PATHS="" \
-	VITE_API_URL=localhost:9092 \
+	VITE_API_URL=localhost:3000 \
 	npm run serve:js
 
 serve-bash:
 	IGNORE_PATHS="" \
-	VITE_API_URL=localhost:9092 \
+	VITE_API_URL=localhost:3000 \
 	npm run serve:bash
 
 # --platform $(PLATFORM)
@@ -31,14 +31,14 @@ docker-build:
 docker-run:
 	docker run -it \
 	-p 5173:5173 \
-	-e VITE_API_URL=http://localhost:9092 \
+	-e VITE_API_URL=http://localhost:3000 \
 	-e IGNORE_PATHS="" \
 	${DOCKER_IMAGE}
 
 docker-debug:
 	docker run -it \
 	-p 5173:5173 \
-	-e VITE_API_URL=http://localhost:9092 \
+	-e VITE_API_URL=http://localhost:3000 \
 	${DOCKER_IMAGE} /bin/bash
 
 docker-tag:
@@ -52,7 +52,7 @@ docker-push:
 docker-run-server:
 	docker run -it \
 	-e ALLOWED_HOSTS=http://localhost:5173 \
-	-e PORT=9092 \
+	-e PORT=3000 \
 	-e SCHEMA_FILE_NAME=schema_extension \
 	-e USTOM_HEADERS=user-agent,authorization \
 	-e EXTEND_URL=https://swapi-graphql.netlify.app/graphql \

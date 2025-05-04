@@ -59,7 +59,7 @@ make docker-run-server
 ## Options
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
-| `VITE_API_URL`                | URL of the Server [default: `http://localhost:9092`]                       |
+| `VITE_API_URL`                | URL of the Server [default: `http://localhost:3000`]                       |
 | `IGNORED_PATHS`               | Used only at runtime, after the build. ignore certain paths, allowing others to be served |
 
 
