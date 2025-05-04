@@ -82,13 +82,16 @@ export const SchemaProvider = ({ children }: { children: ReactNode }) => {
 
     const { userSDL, remoteSDL } = data;
 
-    if (!userSDL || !remoteSDL) return;
+    if (!userSDL) return;
 
     setRemoteUserSchemaValue(userSDL);
 
     const builtSchemaWithFakeDefs = buildSchemaWithFakeDefs(userSDL, remoteSDL);
 
-    setOriginalSchema(remoteSDL);
+    // extended schema may not be active. if it's not in use, fall back to userSDL
+    const originalSchema = remoteSDL ? remoteSDL : userSDL;
+    setOriginalSchema(originalSchema);
+
     setFullSchemaWithFakeDefs(builtSchemaWithFakeDefs);
   }, [data, isLoading]);
 
