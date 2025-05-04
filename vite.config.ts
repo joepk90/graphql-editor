@@ -6,10 +6,10 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   server: {
-    port: 8080, // Replace with your desired port number
+    port: 5173, // dev server port
   },
   preview: {
-    port: 8080,
+    port: 5173,
   },
   build: {
     outDir: 'dist',

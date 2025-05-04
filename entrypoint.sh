@@ -6,4 +6,4 @@
 sed -i "s|__VITE_API_URL__|$VITE_API_URL|g" ./dist/env.runtime.js
 
 # Start the app
-exec serve -s dist -p 8080 --no-clipboard
+exec serve -s dist -p 5173 --no-clipboard
