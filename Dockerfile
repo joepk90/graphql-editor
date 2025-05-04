@@ -31,9 +31,6 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 
-# Expose the port (adjust if needed)
-EXPOSE 5173
-
 # RUN TIME ENV VARS JS/EXPRESS SETUP (entrypoint.js)
 # RUN npm install --production
 # COPY entrypoint.js ./entrypoint.js

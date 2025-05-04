@@ -60,8 +60,7 @@ make docker-run-server
 | Environment Variables          | Description                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|
 | `VITE_API_URL`                | URL of the Server [default: `http://localhost:3000`]                       |
-| `IGNORED_PATHS`               | Used only at runtime, after the build. ignore certain paths, allowing others to be served |
-
+| `CLIENT_PORT`                 | Set the clients port. Primarily for use in PROD [default: `5173`] |
 
 
 # Runtime Environment Variables 

@@ -13,12 +13,10 @@ build:
 # uses an entrypoint to handle run time env vars and path limitations (see entrypoint.js file)
 # must build the project first
 serve-js:
-	IGNORE_PATHS="" \
 	VITE_API_URL=localhost:3000 \
 	npm run serve:js
 
 serve-bash:
-	IGNORE_PATHS="" \
 	VITE_API_URL=localhost:3000 \
 	npm run serve:bash
 
@@ -32,7 +30,6 @@ docker-run:
 	docker run -it \
 	-p 5173:5173 \
 	-e VITE_API_URL=http://localhost:3000 \
-	-e IGNORE_PATHS="" \
 	${DOCKER_IMAGE}
 
 docker-debug:

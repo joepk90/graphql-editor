@@ -47,9 +47,9 @@ const server = http.createServer((request, response) => {
     });
 });
 
-const PORT = process.env.PORT || 5173;
+const CLIENT_PORT = process.env.CLIENT_PORT || 5173;
 server.listen(PORT, () => {
-  console.log(`🚀 Editor is running at http://localhost:${PORT}`);
+  console.log(`🚀 Editor is running at http://localhost:${CLIENT_PORT}`);
 });
 
 
