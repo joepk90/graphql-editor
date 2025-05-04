@@ -25,14 +25,14 @@ docker-build:
 
 docker-run:
 	docker run -it \
-	-p 8080:8080 \
+	-p 5173:5173 \
 	-e VITE_API_URL=http://localhost:9092 \
 	-e IGNORE_PATHS="" \
 	${DOCKER_IMAGE}
 
 docker-debug:
 	docker run -it \
-	-p 8080:8080 \
+	-p 5173:5173 \
 	-e VITE_API_URL=http://localhost:9092 \
 	${DOCKER_IMAGE} /bin/bash
 
@@ -46,7 +46,7 @@ docker-push:
 # https://github.com/joepk90/graphql-faker
 docker-run-server:
 	docker run -it \
-	-e ALLOWED_HOSTS=http://localhost:8080 \
+	-e ALLOWED_HOSTS=http://localhost:5173 \
 	-e PORT=9092 \
 	-e SCHEMA_FILE_NAME=schema_extension \
 	-e USTOM_HEADERS=user-agent,authorization \
