@@ -35,13 +35,12 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 5173
 
 # RUN TIME ENV VARS JS/EXPRESS SETUP (entrypoint.js)
-RUN npm install --production
-COPY entrypoint.js ./entrypoint.js
-CMD ["node", "entrypoint.js"]
+# RUN npm install --production
+# COPY entrypoint.js ./entrypoint.js
+# CMD ["node", "entrypoint.js"]
 
 # RUN TIME ENV VARS BASH SETUP (entrypoint.sh)
-# RUN npm install -g serve
-# COPY entrypoint.sh /app/entrypoint.sh
-# RUN chmod +x /app/entrypoint.sh
-# CMD ["/app/entrypoint.sh"]
-
+RUN npm install -g serve
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+CMD ["npm", "run", "serve:bash"]
