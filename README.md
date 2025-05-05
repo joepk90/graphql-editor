@@ -56,14 +56,17 @@ Or run the `graphql-faker-server` image:
 make docker-run-server
 ```
 
+
 ## Options
-| Environment Variables          | Description                                                                 |
-|-------------------------------|----------------------------------------------------------------------------|
-| `VITE_API_URL`                | URL of the Server [default: `http://localhost:3000`]                       |
-| `CLIENT_PORT`                 | Set the clients port. Primarily for use in PROD [default: `5173`] |
+| Environment Variables         | Description                                                             |
+|-------------------------------|-------------------------------------------------------------------------|
+| `VITE_API_URL`                | URL of the Server [default: `http://localhost:3000`]                    |
+| `CLIENT_PORT`                 | Set the clients port. Primarily for use in PROD [default: `5173`]       |
 
 
-# Runtime Environment Variables 
+---
+
+## Runtime Environment Variables 
 
 To setup Run Time Environment Variables, the following customisations have been applied.
 
